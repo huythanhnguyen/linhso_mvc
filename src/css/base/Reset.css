@@ -1,0 +1,62 @@
+/* src/css/base/reset.css */
+
+/**
+ * Reset CSS
+ * Thiết lập lại các giá trị mặc định cho tất cả trình duyệt
+ */
+
+ * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    font-size: 16px;
+}
+
+body {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    overflow: hidden;
+}
+
+button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+}
+
+button, input {
+    overflow: visible;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Ẩn scrollbar nhưng vẫn cho phép scroll */
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* IE, Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}

@@ -1,0 +1,261 @@
+/* 
+ * Header.css
+ * Styles for header components
+ */
+
+/* App Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 10;
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Toggle Sidebar Button */
+.toggle-sidebar-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: none; /* Hidden on desktop */
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-sidebar-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Clear Chat Button */
+.clear-button-mobile {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-button-mobile:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Service Selector */
+.service-selector {
+    position: relative;
+}
+
+.current-service {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s;
+}
+
+.current-service:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.current-service span {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.service-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 220px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    z-index: 100;
+    display: none;
+    margin-top: 4px;
+    padding: 8px 0;
+}
+
+.service-selector.active .service-dropdown {
+    display: block;
+    animation: fadeInDown 0.2s ease-out;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    gap: 10px;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.service-item:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.service-item.active {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.service-item i {
+    width: 20px;
+    text-align: center;
+}
+
+/* User Account */
+.user-account-dropdown {
+    position: relative;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.user-avatar:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.account-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 240px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-md);
+    z-index: 100;
+    display: none;
+    margin-top: 8px;
+    padding: 16px;
+}
+
+.user-account-dropdown.active .account-dropdown-menu {
+    display: block;
+    animation: fadeInDown 0.2s ease-out;
+}
+
+.account-info {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 12px;
+}
+
+.account-info p {
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.account-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dropdown-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+
+.dropdown-btn:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.dropdown-btn.danger {
+    color: var(--danger-color);
+}
+
+.dropdown-btn.danger:hover {
+    background-color: var(--danger-light);
+    border-color: var(--danger-color);
+}
+
+.dropdown-btn i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .toggle-sidebar-btn {
+        display: flex;
+    }
+    
+    .current-service {
+        font-size: 0.9rem;
+        padding: 4px 8px;
+    }
+    
+    .current-service span {
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 576px) {
+    .app-header {
+        padding: 8px 12px;
+    }
+    
+    .header-left, .header-right {
+        gap: 8px;
+    }
+}

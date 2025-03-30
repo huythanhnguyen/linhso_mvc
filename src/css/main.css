@@ -1,0 +1,28 @@
+/* src/css/main.css */
+/* Base Styles */
+@import url('base/Reset.css');
+@import url('base/Variables.css');
+@import url('base/Typography.css');
+
+/* Components */
+@import url('components/Buttons.css');
+@import url('components/Forms.css');
+@import url('components/Chat.css');
+@import url('components/Messages.css');
+@import url('components/Sidebar.css');
+@import url('components/Modals.css'); /* Đã sửa thành số nhiều */
+@import url('components/Analysis.css');
+@import url('components/Header.css');
+
+/* Layout */
+@import url('layout/Main.css');
+@import url('layout/Footer.css');
+
+/* Pages */
+@import url('pages/App.css');
+@import url('pages/Login.css');
+@import url('pages/Landing.css');
+
+/* Utils */
+@import url('utils/Animations.css');
+@import url('utils/Responsive.css');

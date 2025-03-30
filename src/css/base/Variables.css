@@ -1,0 +1,95 @@
+/**
+ * Variables.css
+ * Biến CSS toàn cục cho ứng dụng
+ */
+
+ :root {
+    /* Main Colors */
+    --primary-color: #4361ee;
+    --primary-light: #e7ecfd;
+    --primary-dark: #3a56d4;
+    --secondary-color: #3f37c9;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-light: #ffffff;
+    
+    /* Semantic Colors */
+    --success-color: #4caf50;
+    --success-light: #e8f5e9;
+    --warning-color: #ff9800;
+    --warning-light: #fff3e0;
+    --danger-color: #f44336;
+    --danger-light: #ffebee;
+    --auspicious-color: #4caf50;
+    --inauspicious-color: #f44336;
+    --neutral-color: #757575;
+    
+    /* Background and Borders */
+    --background-color: #f5f7fa;
+    --chat-bg: #ffffff;
+    --user-msg-bg: #e3f2fd;
+    --bot-msg-bg: #f5f5f5;
+    --border-color: #e0e0e0;
+    
+    /* Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-slow: 0.35s ease;
+    
+    /* Font Sizes */
+    --font-xs: 0.75rem;
+    --font-sm: 0.875rem;
+    --font-md: 1rem;
+    --font-lg: 1.25rem;
+    --font-xl: 1.5rem;
+    --font-2xl: 2rem;
+    
+    /* Font Weights */
+    --weight-light: 300;
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+    
+    /* Z-Index Layers */
+    --z-base: 1;
+    --z-overlay: 5;
+    --z-dropdown: 10;
+    --z-sticky: 20;
+    --z-fixed: 30;
+    --z-modal: 40;
+    --z-popover: 50;
+    --z-tooltip: 60;
+    --z-loading: 100;
+}
+
+/* Dark Theme Variables (to be implemented later) */
+[data-theme="dark"] {
+    --primary-color: #5c7cfa;
+    --primary-light: #2c3e50;
+    --primary-dark: #4361ee;
+    --background-color: #121212;
+    --chat-bg: #1e1e1e;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --border-color: #333333;
+}

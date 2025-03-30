@@ -1,0 +1,292 @@
+/* 
+ * Analysis.css
+ * Styles for analysis components
+ */
+
+/* Analysis Container */
+.analysis-container {
+    background-color: white;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--primary-color);
+    animation: slideIn 0.3s ease-out;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+}
+
+.analysis-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.phone-number {
+    font-weight: bold;
+}
+
+.analysis-section {
+    margin-bottom: 16px;
+}
+
+.analysis-section h4 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.analysis-section h4::before {
+    content: "";
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background-color: var(--primary-color);
+    margin-right: 7px;
+    border-radius: 2px;
+}
+
+/* Star List */
+.star-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.star-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background-color: #f9f9f9;
+    margin-bottom: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.star-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.star-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.star-item.cat .star-name {
+    color: var(--auspicious-color, #4caf50);
+}
+
+.star-item.hung .star-name {
+    color: var(--inauspicious-color, #f44336);
+}
+
+.star-pair {
+    background-color: #eee;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.star-energy {
+    display: flex;
+    align-items: center;
+}
+
+/* Star Combinations */
+.star-combinations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.star-combo-item {
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background-color: #f9f9f9;
+    margin-bottom: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.star-combo-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.star-name.auspicious {
+    color: var(--auspicious-color, #4caf50);
+}
+
+.star-name.inauspicious {
+    color: var(--inauspicious-color, #f44336);
+}
+
+.combo-plus {
+    margin: 0 4px;
+    color: #666;
+    font-weight: bold;
+}
+
+.star-combo-desc {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Energy Balance */
+.energy-balance {
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background-color: #f9f9f9;
+}
+
+.balance-text {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: inline-block;
+}
+
+.balance-text.balanced {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #2196f3;
+    border-left: 3px solid #2196f3;
+}
+
+.balance-text.cat-heavy {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--auspicious-color, #4caf50);
+    border-left: 3px solid var(--auspicious-color, #4caf50);
+}
+
+.balance-text.hung-heavy {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--inauspicious-color, #f44336);
+    border-left: 3px solid var(--inauspicious-color, #f44336);
+}
+
+.energy-levels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.energy-item {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    background-color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+}
+
+.energy-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.energy-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.energy-value.positive {
+    color: var(--auspicious-color, #4caf50);
+}
+
+.energy-value.negative {
+    color: var(--inauspicious-color, #f44336);
+}
+
+/* Analysis Details */
+.analysis-details {
+    display: none;
+}
+
+/* Toggle Button */
+.details-toggle {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #555;
+    width: 100%;
+    text-align: center;
+    transition: background-color 0.2s, transform 0.1s;
+    font-weight: 500;
+}
+
+.details-toggle:hover {
+    background-color: #e0e0e0;
+}
+
+.details-toggle:active {
+    transform: scale(0.98);
+}
+
+.details-toggle[data-expanded="true"] {
+    background-color: #e3f2fd;
+    color: #2196f3;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes highlight {
+    0% { box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1); }
+    50% { box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.4); }
+    100% { box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1); }
+}
+
+.highlight-new {
+    animation: highlight 1s ease-in-out;
+}
+
+/* Empty list fallback */
+.empty-list {
+    color: #888;
+    text-align: center;
+    padding: 10px;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .analysis-container {
+        padding: 12px;
+    }
+    
+    .energy-levels {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .energy-item {
+        min-width: auto;
+    }
+}

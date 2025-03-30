@@ -1,0 +1,186 @@
+/**
+ * Typography.css
+ * Định nghĩa kiểu dáng chữ cho ứng dụng
+ */
+
+/* Base Typography */
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: var(--font-md);
+    font-weight: var(--weight-normal);
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: var(--space-sm);
+    font-weight: var(--weight-semibold);
+    line-height: 1.3;
+}
+
+h1 {
+    font-size: var(--font-2xl);
+}
+
+h2 {
+    font-size: var(--font-xl);
+}
+
+h3 {
+    font-size: var(--font-lg);
+}
+
+h4 {
+    font-size: var(--font-md);
+}
+
+h5 {
+    font-size: var(--font-sm);
+}
+
+h6 {
+    font-size: var(--font-xs);
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: var(--space-md);
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Text Styles */
+.text-primary {
+    color: var(--primary-color);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-warning {
+    color: var(--warning-color);
+}
+
+.text-light {
+    color: var(--text-light);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.text-lowercase {
+    text-transform: lowercase;
+}
+
+.text-capitalize {
+    text-transform: capitalize;
+}
+
+.text-bold {
+    font-weight: var(--weight-bold);
+}
+
+.text-semibold {
+    font-weight: var(--weight-semibold);
+}
+
+.text-medium {
+    font-weight: var(--weight-medium);
+}
+
+.text-normal {
+    font-weight: var(--weight-normal);
+}
+
+.text-light {
+    font-weight: var(--weight-light);
+}
+
+.text-xs {
+    font-size: var(--font-xs);
+}
+
+.text-sm {
+    font-size: var(--font-sm);
+}
+
+.text-md {
+    font-size: var(--font-md);
+}
+
+.text-lg {
+    font-size: var(--font-lg);
+}
+
+.text-xl {
+    font-size: var(--font-xl);
+}
+
+.text-2xl {
+    font-size: var(--font-2xl);
+}
+
+/* Text Truncation */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Font Styles */
+.font-italic {
+    font-style: italic;
+}
+
+.font-normal {
+    font-style: normal;
+}
+
+/* Lists */
+.list-disc {
+    list-style-type: disc;
+    padding-left: 1.5em;
+}
+
+.list-decimal {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+}
+
+.list-none {
+    list-style-type: none;
+    padding-left: 0;
+}

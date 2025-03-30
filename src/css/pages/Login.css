@@ -1,0 +1,136 @@
+/**
+ * Login.css
+ * Styles specific to the login/register page
+ */
+
+/* Login Container */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: var(--background-color);
+}
+
+/* Auth Box */
+.auth-box {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+}
+
+.auth-header {
+    padding: var(--space-md) var(--space-lg);
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.auth-header h3 {
+    margin-bottom: var(--space-md);
+    font-size: var(--font-lg);
+}
+
+.auth-toggle {
+    display: flex;
+    gap: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-sm);
+}
+
+.auth-tab.active {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Back to Home Link */
+.back-to-home {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    gap: 5px;
+    transition: color 0.2s;
+}
+
+.back-to-home:hover {
+    color: var(--primary-color);
+}
+
+/* Login Notification */
+.login-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-size: 0.95rem;
+    z-index: 1000;
+    max-width: 80%;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.login-notification.error {
+    background-color: var(--danger-light);
+    color: var(--danger-color);
+    border-left: 4px solid var(--danger-color);
+}
+
+.login-notification.success {
+    background-color: var(--success-light);
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.login-notification.info {
+    background-color: #e3f2fd;
+    color: #2196f3;
+    border-left: 4px solid #2196f3;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .auth-box {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+    }
+    
+    .login-container {
+        max-width: 100%;
+    }
+    
+    .back-to-home {
+        top: -35px;
+    }
+}

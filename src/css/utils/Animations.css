@@ -1,0 +1,236 @@
+/**
+ * Animations.css
+ * Định nghĩa các animation cho ứng dụng
+ */
+
+/* Fade In */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Fade Out */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+/* Fade In Up */
+@keyframes fadeInUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Fade In Down */
+@keyframes fadeInDown {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.4s ease-out;
+}
+
+/* Slide In Left */
+@keyframes slideInLeft {
+    from { 
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.3s ease-out;
+}
+
+/* Slide In Right */
+@keyframes slideInRight {
+    from { 
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Zoom In */
+@keyframes zoomIn {
+    from { 
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.zoom-in {
+    animation: zoomIn 0.3s ease-out;
+}
+
+/* Zoom Out */
+@keyframes zoomOut {
+    from { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+.zoom-out {
+    animation: zoomOut 0.3s ease-out;
+}
+
+/* Shake */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.6s ease-in-out;
+}
+
+/* Pulse */
+@keyframes pulse {
+    0% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.4; transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 1s infinite;
+}
+
+/* Spin */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Bounce */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-20px); }
+    60% { transform: translateY(-10px); }
+}
+
+.bounce {
+    animation: bounce 1s ease;
+}
+
+/* Highlight / Flash */
+@keyframes highlight {
+    0% { background-color: transparent; }
+    30% { background-color: rgba(67, 97, 238, 0.2); }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 1.5s ease-out;
+}
+
+/* Custom Animation For Specific UI Elements */
+@keyframes ripple {
+    to {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+.ripple {
+    position: absolute;
+    background: rgba(67, 97, 238, 0.2);
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+/* Box Shadow Pulse */
+@keyframes shadowPulse {
+    0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(67, 97, 238, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+}
+
+.shadow-pulse {
+    animation: shadowPulse 1.5s infinite;
+}
+
+/* Type Writer Effect */
+@keyframes typeWriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.type-writer {
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 auto;
+    letter-spacing: 0.1em;
+    animation: typeWriter 3.5s steps(40, end);
+}
+
+/* Rotate */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rotate {
+    animation: rotate 2s linear infinite;
+}
+
+/* Fade Image */
+@keyframes imageFade {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.6; }
+}
+
+.image-fade {
+    animation: imageFade 2s ease-in-out infinite;
+}

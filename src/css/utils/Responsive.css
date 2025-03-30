@@ -1,0 +1,291 @@
+/**
+ * Responsive.css
+ * Media queries and responsive utility classes
+ */
+
+/* Breakpoints */
+:root {
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+}
+
+/* Mobile First - Base styles are mobile */
+
+/* Extra small devices (phones) */
+/* No media query since this is the default */
+
+/* Small devices (tablets, 576px and up) */
+@media (min-width: 576px) {
+    .container {
+        max-width: 540px;
+    }
+    
+    .d-sm-none {
+        display: none !important;
+    }
+    
+    .d-sm-block {
+        display: block !important;
+    }
+    
+    .d-sm-flex {
+        display: flex !important;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+    
+    .d-md-none {
+        display: none !important;
+    }
+    
+    .d-md-block {
+        display: block !important;
+    }
+    
+    .d-md-flex {
+        display: flex !important;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+    
+    .d-lg-none {
+        display: none !important;
+    }
+    
+    .d-lg-block {
+        display: block !important;
+    }
+    
+    .d-lg-flex {
+        display: flex !important;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+    
+    .d-xl-none {
+        display: none !important;
+    }
+    
+    .d-xl-block {
+        display: block !important;
+    }
+    
+    .d-xl-flex {
+        display: flex !important;
+    }
+}
+
+/* Display utilities for responsive design */
+.d-none {
+    display: none !important;
+}
+
+.d-inline {
+    display: inline !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-table {
+    display: table !important;
+}
+
+.d-table-cell {
+    display: table-cell !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.d-inline-flex {
+    display: inline-flex !important;
+}
+
+/* Mobile and Tablet */
+@media (max-width: 991.98px) {
+    .mobile-only {
+        display: block !important;
+    }
+    
+    .desktop-only {
+        display: none !important;
+    }
+    
+    /* Mobile spacing adjustment */
+    .container {
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    
+    /* Reduced margins for mobile */
+    .mb-md-0 {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Text alignment on mobile */
+    .text-center-xs {
+        text-align: center !important;
+    }
+    
+    /* Stack columns on mobile */
+    .stack-columns {
+        flex-direction: column !important;
+    }
+    
+    /* Full width on mobile */
+    .full-width-xs {
+        width: 100% !important;
+    }
+}
+
+/* Only on mobile phones */
+@media (max-width: 767.98px) {
+    .phone-only {
+        display: block !important;
+    }
+    
+    /* Adjust font sizes for mobile */
+    h1, .h1 {
+        font-size: calc(var(--font-xl) - 0.2rem) !important;
+    }
+    
+    h2, .h2 {
+        font-size: calc(var(--font-lg) - 0.1rem) !important;
+    }
+    
+    /* Adjust padding and margins */
+    .phone-p-2 {
+        padding: var(--space-sm) !important;
+    }
+    
+    .phone-m-2 {
+        margin: var(--space-sm) !important;
+    }
+    
+    /* Hide scrollbars on mobile */
+    .no-scrollbar-xs {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    .no-scrollbar-xs::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Small phones */
+@media (max-width: 575.98px) {
+    .xs-only {
+        display: block !important;
+    }
+    
+    /* Adjust input sizes */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+    
+    /* Stack items vertically */
+    .stack-xs {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    /* Adjust spacing */
+    .xs-p-1 {
+        padding: var(--space-xs) !important;
+    }
+    
+    .xs-m-1 {
+        margin: var(--space-xs) !important;
+    }
+}
+
+/* Landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hide-on-landscape {
+        display: none !important;
+    }
+    
+    /* Adjust heights */
+    .h-sm-on-landscape {
+        height: auto !important;
+        max-height: 80vh !important;
+    }
+}
+
+/* Device specific adjustments */
+/* iOS adjustments */
+@supports (-webkit-touch-callout: none) {
+    /* Safe area insets for notched iPhones */
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    
+    /* Fix font rendering */
+    body {
+        -webkit-text-size-adjust: 100%;
+    }
+    
+    /* Fix for scrolling on iOS */
+    .ios-scroll-fix {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Responsive typography */
+@media (max-width: 991.98px) {
+    :root {
+        --font-xs: 0.7rem;
+        --font-sm: 0.825rem;
+        --font-md: 0.95rem;
+        --font-lg: 1.15rem;
+        --font-xl: 1.3rem;
+        --font-2xl: 1.8rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+}

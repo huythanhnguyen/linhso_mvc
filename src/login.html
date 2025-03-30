@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Phân Tích Số Điện Thoại</title>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Màn hình loading hiển thị khi trang đang tải -->
+    <div id="loading-container">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="login-container">
+        <a href="landing.html" class="back-to-home">
+            <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+        </a>
+        
+        <div class="auth-box">
+            <div class="auth-header">
+                <h3>Đăng Nhập</h3>
+                <div class="auth-toggle">
+                    <button class="auth-tab active" data-tab="login">Đăng Nhập</button>
+                    <button class="auth-tab" data-tab="register">Đăng Ký</button>
+                </div>
+            </div>
+            
+            <!-- Form đăng nhập -->
+            <div class="auth-form active" id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Email của bạn">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mật khẩu</label>
+                    <input type="password" id="login-password" placeholder="Mật khẩu">
+                </div>
+                <div class="form-action">
+                    <button id="login-btn" class="btn-primary">Đăng Nhập</button>
+                </div>
+                <div class="auth-message" id="login-message"></div>
+            </div>
+
+            <!-- Form đăng ký -->
+            <div class="auth-form" id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Họ tên</label>
+                    <input type="text" id="register-name" placeholder="Họ tên của bạn">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="Email của bạn">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Mật khẩu</label>
+                    <input type="password" id="register-password" placeholder="Mật khẩu (ít nhất 6 ký tự)">
+                </div>
+                <div class="form-action">
+                    <button id="register-btn" class="btn-primary">Đăng Ký</button>
+                </div>
+                <div class="auth-message" id="register-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Main Entry Point -->
+    <script type="module" src="js/views/pages/LoginView.js"></script>
+</body>
+</html>

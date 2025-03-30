@@ -1,0 +1,83 @@
+src/
+├── index.html                  # Entry point HTML (redirect)
+├── app.html                    # Main application HTML
+├── login.html                  # Login/Register page
+├── landing.html                # Landing page
+│
+├── assets/                     # Static assets
+│   ├── images/                 # Image files
+│   └── fonts/                  # Font files
+│
+├── css/
+│   ├── base/
+│   │   ├── Reset.css           # CSS reset
+│   │   ├── Variables.css       # CSS variables (colors, sizes)
+│   │   └── Typography.css      # Text styles
+│   │
+│   ├── components/
+│   │   ├── Buttons.css         # Button styles
+│   │   ├── Forms.css           # Form elements
+│   │   ├── Chat.css            # Chat container
+│   │   ├── Messages.css        # Message bubbles
+│   │   ├── Sidebar.css         # Sidebar styles
+│   │   ├── Analysis.css        # Analysis components
+│   │   └── Modals.css          # Modal dialogs
+│   │
+│   ├── layout/
+│   │   ├── Header.css          # Header layout
+│   │   ├── Main.css            # Main content area
+│   │   └── Footer.css          # Footer layout
+│   │
+│   ├── pages/
+│   │   ├── Landing.css         # Landing page specific
+│   │   ├── Login.css           # Login page specific
+│   │   └── App.css             # App page specific
+│   │
+│   ├── utils/
+│   │   ├── Animations.css      # Animations
+│   │   └── Responsive.css      # Media queries
+│   │
+│   └── Main.css                # Main CSS file importing all others
+│
+├── js/
+│   ├── core/
+│   │   ├── Config.js           # Application configuration
+│   │   ├── Storage.js          # LocalStorage management 
+│   │   ├── EventBus.js         # Pub/Sub event system
+│   │   └── Utils.js            # Utility functions
+│   │
+│   ├── models/
+│   │   ├── UserModel.js        # User data model
+│   │   ├── AnalysisModel.js    # Analysis data model
+│   │   └── MessageModel.js     # Message data model
+│   │
+│   ├── services/
+│   │   ├── AuthService.js      # Authentication service
+│   │   ├── ApiService.js       # API communication
+│   │   ├── AnalysisService.js  # Analysis service
+│   │   └── ChatService.js      # Chat functionality
+│   │
+│   ├── controllers/
+│   │   ├── AuthController.js   # Auth controller
+│   │   ├── ChatController.js   # Chat controller
+│   │   ├── AnalysisController.js # Analysis controller
+│   │   └── HistoryController.js # History controller
+│   │
+│   ├── views/
+│   │   ├── components/
+│   │   │   ├── ChatView.js     # Chat UI component
+│   │   │   ├── SidebarView.js  # Sidebar UI component
+│   │   │   ├── HeaderView.js   # Header UI component
+│   │   │   ├── ModalView.js    # Modal dialog component
+│   │   │   └── FormsView.js    # Form handling
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── LandingView.js  # Landing page view
+│   │   │   ├── LoginView.js    # Login page view
+│   │   │   └── AppView.js      # Main app view
+│   │   │
+│   │   └── Templates.js        # HTML templates
+│   │
+│   └── App.js                  # Main application entry point
+│
+└── README.md                   # Project documentation

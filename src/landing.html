@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tích Số Điện Thoại</title>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Khắc phục tạm thời để ngăn yêu cầu favicon -->
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <!-- Màn hình loading hiển thị khi trang đang tải -->
+    <div id="loading-container" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Landing Page -->
+    <div id="landing-page">
+        <div class="landing-header">
+            <div class="brand">
+                <i class="fas fa-phone-alt"></i>
+                <span>Phân Tích Số Điện Thoại</span>
+            </div>
+            <div class="auth-buttons">
+                <button id="landing-login-btn" class="auth-btn login-btn">Đăng nhập</button>
+                <button id="landing-signup-btn" class="auth-btn signup-btn">Đăng ký</button>
+            </div>
+        </div>
+        
+        <div class="landing-main">
+            <div class="welcome-text">
+                <h1>Khám phá ý nghĩa ẩn sau con số</h1>
+                <p>Phân tích số điện thoại theo phương pháp Tứ Cát Tứ Hung giúp bạn tối ưu sự nghiệp, tài lộc và may mắn.</p>
+            </div>
+            
+            <div class="landing-demo">
+                <div class="demo-messages">
+                    <div class="demo-message demo-bot">Xin chào! Tôi là trợ lý phân tích số điện thoại theo phương pháp Tứ Cát Tứ Hung. Bạn có thể nhập số điện thoại để tôi phân tích hoặc đặt câu hỏi về ý nghĩa các con số.</div>
+                    <div class="demo-message demo-user">0931328208</div>
+                    <div class="demo-message demo-bot">Phân tích số 0931328208: Đây là dãy số cân bằng giữa sao cát và hung, với tổ hợp số thể hiện sự thịnh vượng và phát triển trong sự nghiệp.</div>
+                </div>
+                <div class="demo-input">
+                    <input type="text" placeholder="Đăng nhập để trải nghiệm...">
+                    <button><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="feature-title">Phân tích Tứ Cát Tứ Hung</h3>
+                    <p class="feature-description">Khám phá sự cân bằng giữa sao cát và sao hung trong dãy số của bạn, đánh giá mức độ may mắn và thuận lợi.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="feature-title">Ý nghĩa tài lộc</h3>
+                    <p class="feature-description">Phân tích khả năng thu hút tài lộc, thịnh vượng và cơ hội kinh doanh từ dãy số điện thoại của bạn.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Tình duyên & Mối quan hệ</h3>
+                    <p class="feature-description">Khám phá ảnh hưởng của dãy số đến các mối quan hệ, tình duyên và khả năng kết nối với người khác.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3 class="feature-title">Sự nghiệp & Mục tiêu</h3>
+                    <p class="feature-description">Hiểu rõ ảnh hưởng của dãy số điện thoại đến con đường sự nghiệp và khả năng đạt được mục tiêu.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="landing-footer">
+            &copy; 2025 Phân Tích Số Điện Thoại - Giải mã ý nghĩa con số trong cuộc sống của bạn
+        </div>
+    </div>
+
+    <!-- JavaScript Main Entry Point -->
+    <script type="module" src="js/views/pages/LandingView.js"></script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tích Số Điện Thoại</title>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Màn hình loading -->
+    <div id="loading-container">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Phần ứng dụng chính -->
+    <div id="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Phân Tích Số Điện Thoại</h2>
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <i class="fas fa-plus"></i> Cuộc hội thoại mới
+                </button>
+                <button id="close-sidebar-btn" class="close-sidebar-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab-button active" data-tab="history">Lịch sử</button>
+                </div>
+                
+                <!-- Nội dung tab lịch sử -->
+                <div class="sidebar-tab-content active" id="history-tab">
+                    <div class="history-header">
+                        <h4>Lịch sử phân tích</h4>
+                        <button id="clear-history" class="clear-button">Xóa lịch sử</button>
+                    </div>
+                    <div id="analysis-history" class="analysis-history-container">
+                        <!-- Lịch sử phân tích sẽ được hiển thị ở đây -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="app-header">
+                <div class="header-left">
+                    <button id="toggle-sidebar-btn" class="toggle-sidebar-btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <div class="service-selector">
+                        <div class="current-service">
+                            <span>Phân Tích Số Điện Thoại</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button id="clear-chat-mobile" class="clear-button-mobile" title="Xóa cuộc trò chuyện">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    
+                    <!-- User account dropdown -->
+                    <div class="user-account-dropdown">
+                        <button class="user-avatar" id="toggle-account-dropdown">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <div class="account-dropdown-menu" id="account-dropdown-menu">
+                            <div class="account-info">
+                                <p><strong>Tên:</strong> <span id="account-name"></span></p>
+                                <p><strong>Email:</strong> <span id="account-email"></span></p>
+                                <p><strong>Ngày tạo:</strong> <span id="account-created"></span></p>
+                            </div>
+                            <div class="account-actions">
+                                <button id="change-password-btn" class="dropdown-btn">
+                                    <i class="fas fa-key"></i> Đổi Mật Khẩu
+                                </button>
+                                <button id="logout-btn" class="dropdown-btn danger">
+                                    <i class="fas fa-sign-out-alt"></i> Đăng Xuất
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner" id="welcome-banner">
+                    <div class="user-welcome">
+                        <h2>Xin chào, <span id="user-name-welcome"></span></h2>
+                        <p>Hãy nhập số điện thoại để phân tích hoặc đặt câu hỏi.</p>
+                    </div>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Tin nhắn sẽ được hiển thị ở đây -->
+                </div>
+                
+                <!-- Typing Indicator -->
+                <div class="typing-indicator hidden" id="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <div class="chat-input">
+                        <textarea id="user-input" placeholder="Nhập số điện thoại hoặc đặt câu hỏi..." rows="1"></textarea>
+                        <button id="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-info">
+                        Nhập số điện thoại để phân tích hoặc đặt câu hỏi về ý nghĩa các con số
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <div id="templates" style="display: none;">
+        <!-- Bot Message Template -->
+        <template id="bot-message-template">
+            <div class="message bot-message">
+                <div class="message-content"></div>
+                <div class="analysis-data hidden"></div>
+                
+                <!-- Phần hiển thị câu hỏi mẫu -->
+                <div class="suggestion-text hidden">
+                    <p>Bạn có thể hỏi thêm về:</p>
+                </div>
+                <div class="question-examples hidden"></div>
+                
+                <!-- Suggestion chips -->
+                <div class="suggestion-chips hidden">
+                    <button class="category-btn" data-category="business">
+                        <i class="fas fa-briefcase"></i> Kinh doanh
+                    </button>
+                    <button class="category-btn" data-category="love">
+                        <i class="fas fa-heart"></i> Tình duyên
+                    </button>
+                    <button class="category-btn" data-category="wealth">
+                        <i class="fas fa-coins"></i> Tài lộc
+                    </button>
+                    <button class="category-btn" data-category="health">
+                        <i class="fas fa-heartbeat"></i> Sức khỏe
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <!-- User Message Template -->
+        <template id="user-message-template">
+            <div class="message user-message">
+                <div class="message-content"></div>
+            </div>
+        </template>
+
+        <!-- Analysis Container Template -->
+        <template id="analysis-container-template">
+            <div class="analysis-container">
+                <div class="analysis-title">Phân tích số: <span class="phone-number"></span></div>
+                <div class="analysis-content">
+                    <div class="analysis-section">
+                        <h4>Các sao chủ đạo</h4>
+                        <div class="star-list"></div>
+                    </div>
+                    
+                    <!-- Phần tổ hợp sao -->
+                    <div class="analysis-section star-combinations-section">
+                        <h4>Tổ hợp sao</h4>
+                        <div class="star-combinations-list"></div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h4>Cân bằng năng lượng</h4>
+                        <div class="energy-balance"></div>
+                    </div>
+                    
+                    <!-- Phần chi tiết phân tích (ẩn mặc định) -->
+                    <div class="analysis-details">
+                        <!-- Được điền động bởi JavaScript -->
+                    </div>
+                    
+                    <button class="details-toggle" data-expanded="false">Xem chi tiết</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- History Item Template -->
+        <template id="history-item-template">
+            <div class="history-item">
+                <div class="history-phone"></div>
+                <div class="history-time"></div>
+            </div>
+        </template>
+    </div>
+
+    <!-- Modal Change Password -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Đổi Mật Khẩu</h3>
+                <button id="close-password-modal" class="modal-close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="current-password">Mật khẩu hiện tại</label>
+                    <input type="password" id="current-password" placeholder="Nhập mật khẩu hiện tại">
+                </div>
+                <div class="form-group">
+                    <label for="new-password">Mật khẩu mới</label>
+                    <input type="password" id="new-password" placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Xác nhận mật khẩu</label>
+                    <input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu mới">
+                </div>
+                <div id="password-message" class="password-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="submit-password" class="btn-primary">Cập Nhật</button>
+                <button id="cancel-password" class="btn-outline">Hủy Bỏ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Main Entry Point -->
+    <script type="module" src="js/App.js"></script>
+</body>
+</html>
