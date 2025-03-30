@@ -42,7 +42,19 @@ const App = (function() {
             initializeServices();
             
             // Khởi tạo Controllers
-            initializeControllers();
+          
+            function initializeControllers() {
+                console.log('Initializing controllers...');
+                
+                // Đảm bảo dòng này tồn tại và được gọi
+                AuthController.init();
+                
+                // Thêm đăng ký sự kiện nếu cần
+                EventBus.subscribe('auth:login', function(data) {
+                    console.log('Auth:login event captured in App.js', data);
+                    AuthController.login(data.email, data.password);
+                });
+            }
             
             // Khởi tạo View dựa vào trang hiện tại
             initializeView(currentPage);

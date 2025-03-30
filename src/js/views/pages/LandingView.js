@@ -133,3 +133,8 @@ const LandingView = (function() {
 })();
 
 export default LandingView;
+
+// Tự động khởi tạo khi DOM đã sẵn sàng
+document.addEventListener('DOMContentLoaded', function() {
+    LandingView.init();
+});
