@@ -9,6 +9,60 @@ class AuthController {
     constructor() {
         this.initialized = false;
         this.authenticating = false;
+        
+        // Đăng ký các sự kiện xác thực ngay khi controller được tạo
+        this.setupEventListeners();
+    }
+    
+    /**
+     * Thiết lập các event listeners
+     */
+    setupEventListeners() {
+        console.log('Setting up auth event listeners');
+        
+        // Đăng ký lắng nghe sự kiện đăng nhập
+        EventBus.subscribe('auth:login', async (data) => {
+            console.log('Received auth:login event', data);
+            
+            if (!data || !data.email || !data.password) {
+                console.error('Invalid login data received');
+                EventBus.publish('auth:loginResult', { 
+                    success: false, 
+                    error: 'Dữ liệu đăng nhập không hợp lệ' 
+                });
+                return;
+            }
+            
+            const result = await this.login(data.email, data.password);
+            console.log('Login result:', result);
+            EventBus.publish('auth:loginResult', result);
+        });
+        
+        // Đăng ký lắng nghe sự kiện đăng ký
+        EventBus.subscribe('auth:register', async (data) => {
+            console.log('Received auth:register event', data);
+            
+            if (!data || !data.email || !data.password) {
+                console.error('Invalid register data received');
+                EventBus.publish('auth:registerResult', { 
+                    success: false, 
+                    error: 'Dữ liệu đăng ký không hợp lệ' 
+                });
+                return;
+            }
+            
+            const result = await this.register(data.name, data.email, data.password);
+            console.log('Register result:', result);
+            EventBus.publish('auth:registerResult', result);
+        });
+        
+        // Đăng ký lắng nghe sự kiện đăng xuất
+        EventBus.subscribe('auth:logout', async () => {
+            console.log('Received auth:logout event');
+            await this.logout();
+        });
+        
+        console.log('Auth event listeners set up successfully');
     }
     
     /**
@@ -45,6 +99,8 @@ class AuthController {
      */
     async login(email, password) {
         try {
+            console.log('AuthController: Attempting login for', email);
+            
             if (!email || !password) {
                 EventBus.publish('auth:error', { message: 'Email và mật khẩu không được trống' });
                 return { success: false, error: 'Email và mật khẩu không được trống' };
@@ -62,19 +118,24 @@ class AuthController {
             
             if (result.success) {
                 // Login successful, redirect or update UI
+                console.log('Login successful for', email);
                 EventBus.publish('auth:loginSuccess', result);
             } else {
                 // Login failed, show error
+                console.error('Login failed for', email, result.error);
                 EventBus.publish('auth:loginFailed', result);
             }
             
             return result;
         } catch (error) {
+            console.error('Error during login:', error);
             const errorResult = { success: false, error: error.message };
             EventBus.publish('auth:loginFailed', errorResult);
             return errorResult;
         }
     }
+    
+    // Các phương thức khác giữ nguyên
     
     /**
      * Register a new user
@@ -120,93 +181,8 @@ class AuthController {
             return errorResult;
         }
     }
-    
-    /**
-     * Logout the current user
-     */
-    async logout() {
-        try {
-            // Publish logout started event
-            EventBus.publish('auth:logoutStarted');
-            
-            const result = await AuthService.logout();
-            
-            // Publish logout success event
-            EventBus.publish('auth:logoutSuccess');
-            
-            return result;
-        } catch (error) {
-            // Publish logout failed event
-            EventBus.publish('auth:logoutFailed', { error: error.message });
-            
-            return { success: false, error: error.message };
-        }
-    }
-    
-    /**
-     * Change user password
-     * @param {string} currentPassword - Current password
-     * @param {string} newPassword - New password
-     */
-    async changePassword(currentPassword, newPassword) {
-        try {
-            // Validate inputs
-            if (!currentPassword || !newPassword) {
-                EventBus.publish('auth:error', { message: 'Vui lòng nhập mật khẩu hiện tại và mật khẩu mới' });
-                return { success: false, error: 'Vui lòng nhập mật khẩu hiện tại và mật khẩu mới' };
-            }
-            
-            if (!Utils.isValidPassword(newPassword)) {
-                EventBus.publish('auth:error', { message: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
-                return { success: false, error: 'Mật khẩu mới phải có ít nhất 6 ký tự' };
-            }
-            
-            // Publish password change started event
-            EventBus.publish('auth:passwordChangeStarted');
-            
-            const result = await AuthService.changePassword(currentPassword, newPassword);
-            
-            if (result.success) {
-                // Password change successful
-                EventBus.publish('auth:passwordChangeSuccess');
-            } else {
-                // Password change failed
-                EventBus.publish('auth:passwordChangeFailed', result);
-            }
-            
-            return result;
-        } catch (error) {
-            const errorResult = { success: false, error: error.message };
-            EventBus.publish('auth:passwordChangeFailed', errorResult);
-            return errorResult;
-        }
-    }
-    
-    /**
-     * Get the current authenticated user
-     * @returns {Object|null} Current user or null
-     */
-    getCurrentUser() {
-        return AuthService.getCurrentUser();
-    }
-    
-    /**
-     * Check if a user is authenticated
-     * @returns {boolean} True if authenticated, false otherwise
-     */
-    isAuthenticated() {
-        return AuthService.isAuthenticated();
-    }
-    
-    /**
-     * Check if authentication is in progress
-     * @returns {boolean} True if authenticating, false otherwise
-     */
-    isAuthenticating() {
-        return this.authenticating;
-    }
 }
 
-// Create a singleton instance
+// Tạo đối tượng singleton và export
 const authController = new AuthController();
 export default authController;

@@ -82,26 +82,34 @@ class AuthService {
         try {
             const response = await ApiService.login(email, password);
             
-            if (response.success === false) {
-                return { success: false, error: response.message || 'Đăng nhập thất bại' };
+            if (response.success) {
+                console.log('Login successful, storing token:', response.token);
+                
+                // Store token and user - Đảm bảo lưu đúng key
+                localStorage.setItem('phone_analysis_token', response.token);
+                
+                if (response.user) {
+                    localStorage.setItem('phone_analysis_user', JSON.stringify(response.user));
+                }
+                
+                // Kiểm tra xem token đã được lưu chưa
+                console.log('Token saved to localStorage:', localStorage.getItem('phone_analysis_token'));
+                
+                // Update current user
+                this.currentUser = response.user;
+                
+                // Dispatch auth state change event
+                EventBus.publish('authStateChanged', { authenticated: true, user: this.currentUser });
             }
             
-            // Store token and user
-            Storage.setAuthToken(response.token);
-            Storage.setUser(response.user);
-            
-            // Update current user
-            this.currentUser = response.user;
-            
-            // Dispatch auth state change event
-            EventBus.publish('authStateChanged', { authenticated: true, user: this.currentUser });
-            
-            return { success: true, user: response.user };
+            return response;
         } catch (error) {
-            return { success: false, error: error.message || 'Đăng nhập thất bại' };
+            return { 
+                success: false, 
+                error: error.message || 'Đăng nhập thất bại'
+            };
         }
     }
-    
     /**
      * Register a new user
      * @param {string} name - User name

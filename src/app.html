@@ -1,13 +1,48 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phân Tích Số Điện Thoại</title>
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Phân Tích Số Điện Thoại</title>
+        <!-- CSS Files -->
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        
+        <!-- Authentication Check Script -->
+        <script>
+            // Check authentication before loading app
+            (function() {
+                const token = localStorage.getItem('phone_analysis_token');
+                if (!token) {
+                    console.log('Authentication required, redirecting to login');
+                    window.location.href = 'login.html';
+                }
+            })();
+        </script>
+        <script>
+            // Check authentication before loading app
+            (function() {
+                console.log('Checking authentication in app.html');
+                // Kiểm tra cả hai vị trí lưu trữ token có thể
+                const token = localStorage.getItem('phone_analysis_token');
+                const configToken = localStorage.getItem(
+                    // fallback nếu Config chưa được tải
+                    typeof Config !== 'undefined' ? Config.STORAGE.TOKEN : 'phone_analysis_token'
+                );
+                
+                console.log('Direct token check:', token);
+                console.log('Config token check:', configToken);
+                
+                // Sử dụng token từ bất kỳ nguồn nào
+                if (!token && !configToken) {
+                    console.log('Authentication required, redirecting to login');
+                    window.location.href = 'login.html';
+                } else {
+                    console.log('Authentication successful, loading app');
+                }
+            })();
+        </script>
+    </head>
 <body>
     <!-- Màn hình loading -->
     <div id="loading-container">

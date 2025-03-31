@@ -4,163 +4,76 @@
  */
 
 import EventBus from '../../core/EventBus.js';
-import AuthController from '../../controllers/AuthController.js';
 
 const LoginView = (function() {
     // Cache DOM elements
     let elements = {};
-    let initialized = false;
     
     /**
-     * Kiểm tra xem trang hiện tại có phải là trang login không
-     * @returns {boolean} True nếu đang ở trang login
+     * Xử lý kết quả đăng nhập
+     * @param {Object} result - Kết quả đăng nhập
      */
-    function isLoginPage() {
-        return window.location.pathname.includes('login.html');
-    }
-    
-    /**
-     * Khởi tạo view
-     */
-    function init() {
-        console.log('LoginView initializing...');
+    function handleLoginResult(result) {
+        console.log('Handling login result:', result);
         
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM content loaded, initializing LoginView');
-            
-            // Check if already initialized
-            if (initialized) {
-                console.log('LoginView already initialized, skipping');
-                return;
-            }
-            
-            // Check if this is the login page
-            if (!isLoginPage()) {
-                console.log('Not on login page, skipping LoginView initialization');
-                return;
-            }
-            
-            // Cache DOM elements
-            elements = {
-                loginForm: document.getElementById('login-form'),
-                loginEmail: document.getElementById('login-email'),
-                loginPassword: document.getElementById('login-password'),
-                loginButton: document.getElementById('login-btn'),
-                loginMessage: document.getElementById('login-message'),
-                
-                registerForm: document.getElementById('register-form'),
-                registerName: document.getElementById('register-name'),
-                registerEmail: document.getElementById('register-email'),
-                registerPassword: document.getElementById('register-password'),
-                registerButton: document.getElementById('register-btn'),
-                registerMessage: document.getElementById('register-message'),
-                
-                authTabs: document.querySelectorAll('.auth-tab'),
-                
-                backToHomeLink: document.querySelector('.back-to-home'),
-                loadingContainer: document.getElementById('loading-container')
-            };
-            
-            console.log('DOM elements:', elements);
-            
-            // Verify if elements were found
-            if (!elements.loginForm || !elements.registerForm) {
-                console.warn('Login forms not found in the DOM. Make sure the IDs match those in the HTML.');
-            }
-            
-            // Hide loading screen
-            if (elements.loadingContainer) {
-                elements.loadingContainer.style.display = 'none';
-            }
-            
-            // Set up event listeners for login form
-            if (elements.loginButton) {
-                console.log('Setting up login button listener');
-                elements.loginButton.addEventListener('click', handleLogin);
-            }
-            
-            if (elements.loginPassword) {
-                console.log('Setting up login password enter key listener');
-                elements.loginPassword.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        handleLogin();
-                    }
-                });
-            }
-            
-            // Set up event listeners for register form
-            if (elements.registerButton) {
-                console.log('Setting up register button listener');
-                elements.registerButton.addEventListener('click', handleRegister);
-            }
-            
-            if (elements.registerPassword) {
-                console.log('Setting up register password enter key listener');
-                elements.registerPassword.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        handleRegister();
-                    }
-                });
-            }
-            
-            // Set up auth tabs
-            if (elements.authTabs && elements.authTabs.length > 0) {
-                elements.authTabs.forEach(tab => {
-                    tab.addEventListener('click', function() {
-                        const tabName = this.getAttribute('data-tab');
-                        console.log('Auth tab clicked:', tabName);
-                        switchAuthTab(tabName);
-                    });
-                });
-
-                // Check URL parameters for initial tab
-                const urlParams = new URLSearchParams(window.location.search);
-                const tab = urlParams.get('tab');
-                if (tab === 'register') {
-                    console.log('URL parameter tab=register found, switching to register tab');
-                    switchAuthTab('register');
-                }
-            }
-            
-            // Subscribe to events
-            console.log('Subscribing to auth events');
-            EventBus.subscribe('auth:loginSuccess', handleLoginSuccess);
-            EventBus.subscribe('auth:loginFailed', handleLoginFailed);
-            EventBus.subscribe('auth:registerSuccess', handleRegisterSuccess);
-            EventBus.subscribe('auth:registerFailed', handleRegisterFailed);
-            
-            // Initialize AuthController if needed
-            try {
-                AuthController.init();
-                console.log('AuthController initialized');
-            } catch (error) {
-                console.error('Error initializing AuthController:', error);
-            }
-            
-            // Check authentication status
-            checkAuthStatus();
-            
-            initialized = true;
-            console.log('LoginView initialized successfully');
-        });
-    }
-    
-    /**
-     * Kiểm tra trạng thái xác thực và chuyển hướng nếu cần
-     * @private
-     */
-    function checkAuthStatus() {
-        console.log('Checking auth status...');
-        // Check if token exists in localStorage
-        const token = localStorage.getItem('phone_analysis_token');
-        const user = localStorage.getItem('phone_analysis_user');
+        const login = elements.login;
+        if (!login.message || !login.submitBtn) return;
         
-        if (token && user) {
-            console.log('User already authenticated, redirecting to app');
+        // Re-enable submit button
+        login.submitBtn.disabled = false;
+        
+        if (result.success) {
+            login.message.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
+            login.message.style.color = 'var(--success-color)';
+            
+            // Lưu token trực tiếp tại đây để đảm bảo
+            if (result.token) {
+                console.log('Saving token directly from result:', result.token);
+                localStorage.setItem('phone_analysis_token', result.token);
+            }
+            
+            // Kiểm tra lại xem token đã được lưu chưa
+            console.log('Token in localStorage:', localStorage.getItem('phone_analysis_token'));
+            
             // Redirect to app page
-            window.location.href = 'app.html';
+            console.log('Redirecting to app.html after 1 second...');
+            setTimeout(() => {
+                window.location.href = 'app.html';
+            }, 1000);
         } else {
-            console.log('User not authenticated, showing login form');
+            login.message.textContent = result.error || 'Đăng nhập thất bại';
+            login.message.style.color = 'var(--danger-color)';
+            
+            // Clear password field
+            if (login.password) {
+                login.password.value = '';
+                login.password.focus();
+            }
+        }
+    }
+    
+    /**
+     * Xử lý kết quả đăng ký
+     * @param {Object} result - Kết quả đăng ký
+     */
+    function handleRegisterResult(result) {
+        const register = elements.register;
+        if (!register.message || !register.submitBtn) return;
+        
+        // Re-enable submit button
+        register.submitBtn.disabled = false;
+        
+        if (result.success) {
+            register.message.textContent = 'Đăng ký thành công! Đang chuyển hướng...';
+            register.message.style.color = 'var(--success-color)';
+            
+            // Redirect to app page
+            setTimeout(() => {
+                window.location.href = 'app.html';
+            }, 1000);
+        } else {
+            register.message.textContent = result.error || 'Đăng ký thất bại';
+            register.message.style.color = 'var(--danger-color)';
         }
     }
     
@@ -169,141 +82,61 @@ const LoginView = (function() {
      * @private
      */
     function handleLogin() {
-        console.log('Handle login triggered');
+        console.log('Processing login request');
+        const login = elements.login;
         
-        if (!elements.loginEmail || !elements.loginPassword || !elements.loginMessage) {
+        // Check if login elements exist
+        if (!login.email || !login.password || !login.message) {
             console.error('Login form elements not found');
             return;
         }
         
-        const email = elements.loginEmail.value.trim();
-        const password = elements.loginPassword.value;
+        const email = login.email.value.trim();
+        const password = login.password.value;
+        
+        console.log('Login credentials (email):', email);
         
         // Validate inputs
         if (!email) {
-            setLoginMessage('Vui lòng nhập email', 'error');
-            elements.loginEmail.focus();
+            login.message.textContent = 'Vui lòng nhập email';
+            login.email.focus();
             return;
         }
         
         if (!password) {
-            setLoginMessage('Vui lòng nhập mật khẩu', 'error');
-            elements.loginPassword.focus();
+            login.message.textContent = 'Vui lòng nhập mật khẩu';
+            login.password.focus();
             return;
         }
         
-        console.log('Login attempt with email:', email);
-        
         // Display processing message
-        setLoginMessage('Đang đăng nhập...', 'info');
+        login.message.textContent = 'Đang đăng nhập...';
+        login.message.style.color = 'var(--text-secondary)';
         
-        // Disable login button
-        if (elements.loginButton) {
-            elements.loginButton.disabled = true;
+        // Disable submit button
+        if (login.submitBtn) {
+            login.submitBtn.disabled = true;
         }
         
-        // Show loading
-        setLoading(true);
+        console.log('Emitting auth:login event');
         
         // Emit login event
-        console.log('Publishing auth:login event');
         EventBus.publish('auth:login', { email, password });
         
-        // Try direct login if event system isn't working
-        try {
-            // This might help when event system isn't fully initialized
+        // Gọi trực tiếp AuthController nếu event không hoạt động
+        if (typeof AuthController !== 'undefined' && typeof AuthController.login === 'function') {
+            console.log('Calling AuthController.login directly');
             AuthController.login(email, password)
                 .then(result => {
-                    console.log('Direct login result:', result);
-                    if (result.success) {
-                        handleLoginSuccess(result);
-                    } else {
-                        handleLoginFailed(result);
-                    }
+                    handleLoginResult(result);
                 })
                 .catch(error => {
-                    console.error('Direct login error:', error);
-                    handleLoginFailed({ error: error.message });
+                    console.error('Login failed:', error);
+                    handleLoginResult({ 
+                        success: false, 
+                        error: error.message || 'Đăng nhập thất bại' 
+                    });
                 });
-        } catch (error) {
-            console.error('Error calling direct login:', error);
-        }
-    }
-    
-    /**
-     * Xử lý kết quả đăng nhập thành công
-     * @param {Object} result - Kết quả đăng nhập
-     */
-    function handleLoginSuccess(result) {
-        console.log('Login successful:', result);
-        
-        // Re-enable login button
-        if (elements.loginButton) {
-            elements.loginButton.disabled = false;
-        }
-        
-        // Hide loading
-        setLoading(false);
-        
-        // Show success message
-        setLoginMessage('Đăng nhập thành công! Đang chuyển hướng...', 'success');
-        
-        // Redirect to app page
-        setTimeout(() => {
-            window.location.href = 'app.html';
-        }, 1000);
-    }
-    
-    /**
-     * Xử lý kết quả đăng nhập thất bại
-     * @param {Object} result - Kết quả đăng nhập
-     */
-    function handleLoginFailed(result) {
-        console.error('Login failed:', result);
-        
-        // Re-enable login button
-        if (elements.loginButton) {
-            elements.loginButton.disabled = false;
-        }
-        
-        // Hide loading
-        setLoading(false);
-        
-        // Show error message
-        setLoginMessage(result.error || 'Đăng nhập thất bại', 'error');
-        
-        // Clear password field
-        if (elements.loginPassword) {
-            elements.loginPassword.value = '';
-            elements.loginPassword.focus();
-        }
-    }
-    
-    /**
-     * Đặt nội dung thông báo đăng nhập
-     * @param {string} message - Nội dung thông báo
-     * @param {string} type - Loại thông báo (error, success, info)
-     */
-    function setLoginMessage(message, type = 'error') {
-        if (!elements.loginMessage) return;
-        
-        elements.loginMessage.textContent = message;
-        
-        // Reset classes
-        elements.loginMessage.className = 'auth-message';
-        
-        // Apply color based on type
-        switch (type) {
-            case 'success':
-                elements.loginMessage.style.color = 'var(--success-color)';
-                break;
-            case 'info':
-                elements.loginMessage.style.color = 'var(--text-secondary)';
-                break;
-            case 'error':
-            default:
-                elements.loginMessage.style.color = 'var(--danger-color)';
-                break;
         }
     }
     
@@ -312,150 +145,155 @@ const LoginView = (function() {
      * @private
      */
     function handleRegister() {
-        console.log('Handle register triggered');
+        console.log('Processing register request');
+        const register = elements.register;
+        if (!register.name || !register.email || !register.password || !register.message) return;
         
-        if (!elements.registerName || !elements.registerEmail || 
-            !elements.registerPassword || !elements.registerMessage) {
-            console.error('Register form elements not found');
-            return;
-        }
-        
-        const name = elements.registerName.value.trim();
-        const email = elements.registerEmail.value.trim();
-        const password = elements.registerPassword.value;
+        const name = register.name.value.trim();
+        const email = register.email.value.trim();
+        const password = register.password.value;
         
         // Validate inputs
         if (!name) {
-            setRegisterMessage('Vui lòng nhập tên', 'error');
-            elements.registerName.focus();
+            register.message.textContent = 'Vui lòng nhập tên';
+            register.name.focus();
             return;
         }
         
         if (!email) {
-            setRegisterMessage('Vui lòng nhập email', 'error');
-            elements.registerEmail.focus();
+            register.message.textContent = 'Vui lòng nhập email';
+            register.email.focus();
             return;
         }
         
         if (!password) {
-            setRegisterMessage('Vui lòng nhập mật khẩu', 'error');
-            elements.registerPassword.focus();
+            register.message.textContent = 'Vui lòng nhập mật khẩu';
+            register.password.focus();
             return;
         }
         
         if (password.length < 6) {
-            setRegisterMessage('Mật khẩu phải có ít nhất 6 ký tự', 'error');
-            elements.registerPassword.focus();
+            register.message.textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
+            register.password.focus();
             return;
         }
         
-        console.log('Register attempt with email:', email);
-        
         // Display processing message
-        setRegisterMessage('Đang đăng ký...', 'info');
+        register.message.textContent = 'Đang đăng ký...';
+        register.message.style.color = 'var(--text-secondary)';
         
-        // Disable register button
-        if (elements.registerButton) {
-            elements.registerButton.disabled = true;
+        // Disable submit button
+        if (register.submitBtn) {
+            register.submitBtn.disabled = true;
         }
-        
-        // Show loading
-        setLoading(true);
         
         // Emit register event
-        console.log('Publishing auth:register event');
         EventBus.publish('auth:register', { name, email, password });
-        
-        // Try direct register if event system isn't working
-        try {
-            // This might help when event system isn't fully initialized
-            AuthController.register(name, email, password)
-                .then(result => {
-                    console.log('Direct register result:', result);
-                    if (result.success) {
-                        handleRegisterSuccess(result);
-                    } else {
-                        handleRegisterFailed(result);
-                    }
-                })
-                .catch(error => {
-                    console.error('Direct register error:', error);
-                    handleRegisterFailed({ error: error.message });
-                });
-        } catch (error) {
-            console.error('Error calling direct register:', error);
-        }
     }
     
     /**
-     * Xử lý kết quả đăng ký thành công
-     * @param {Object} result - Kết quả đăng ký
+     * Khởi tạo view
      */
-    function handleRegisterSuccess(result) {
-        console.log('Register successful:', result);
+    function init() {
+        console.log('LoginView initializing...');
         
-        // Re-enable register button
-        if (elements.registerButton) {
-            elements.registerButton.disabled = false;
+        // Kiểm tra nếu đang ở trang login
+        if (!window.location.pathname.includes('login.html') && 
+            !window.location.pathname.endsWith('/login')) {
+            console.log('Not on login page, skipping LoginView initialization');
+            return;
         }
         
-        // Hide loading
-        setLoading(false);
+        console.log('Initializing LoginView for login page');
         
-        // Show success message
-        setRegisterMessage('Đăng ký thành công! Đang chuyển hướng...', 'success');
+        // Cache DOM elements for login form
+        elements.login = {
+            form: document.getElementById('login-form'),
+            email: document.getElementById('login-email'),
+            password: document.getElementById('login-password'),
+            submitBtn: document.getElementById('login-btn'),
+            message: document.getElementById('login-message')
+        };
         
-        // Redirect to app page
-        setTimeout(() => {
-            window.location.href = 'app.html';
-        }, 1000);
-    }
-    
-    /**
-     * Xử lý kết quả đăng ký thất bại
-     * @param {Object} result - Kết quả đăng ký
-     */
-    function handleRegisterFailed(result) {
-        console.error('Register failed:', result);
+        // Cache DOM elements for register form
+        elements.register = {
+            form: document.getElementById('register-form'),
+            name: document.getElementById('register-name'),
+            email: document.getElementById('register-email'),
+            password: document.getElementById('register-password'),
+            submitBtn: document.getElementById('register-btn'),
+            message: document.getElementById('register-message')
+        };
         
-        // Re-enable register button
-        if (elements.registerButton) {
-            elements.registerButton.disabled = false;
+        console.log('Login form elements:', elements.login);
+        console.log('Register form elements:', elements.register);
+        
+        // Set up event listeners for login form
+        if (elements.login.submitBtn) {
+            elements.login.submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Login button clicked');
+                handleLogin();
+            });
+        } else {
+            console.warn('Login submit button not found');
         }
         
-        // Hide loading
-        setLoading(false);
-        
-        // Show error message
-        setRegisterMessage(result.error || 'Đăng ký thất bại', 'error');
-    }
-    
-    /**
-     * Đặt nội dung thông báo đăng ký
-     * @param {string} message - Nội dung thông báo
-     * @param {string} type - Loại thông báo (error, success, info)
-     */
-    function setRegisterMessage(message, type = 'error') {
-        if (!elements.registerMessage) return;
-        
-        elements.registerMessage.textContent = message;
-        
-        // Reset classes
-        elements.registerMessage.className = 'auth-message';
-        
-        // Apply color based on type
-        switch (type) {
-            case 'success':
-                elements.registerMessage.style.color = 'var(--success-color)';
-                break;
-            case 'info':
-                elements.registerMessage.style.color = 'var(--text-secondary)';
-                break;
-            case 'error':
-            default:
-                elements.registerMessage.style.color = 'var(--danger-color)';
-                break;
+        if (elements.login.password) {
+            elements.login.password.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    console.log('Enter key pressed in password field');
+                    handleLogin();
+                }
+            });
         }
+        
+        // Set up event listeners for register form
+        if (elements.register.submitBtn) {
+            elements.register.submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Register button clicked');
+                handleRegister();
+            });
+        } else {
+            console.warn('Register submit button not found');
+        }
+        
+        if (elements.register.password) {
+            elements.register.password.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    console.log('Enter key pressed in register password field');
+                    handleRegister();
+                }
+            });
+        }
+        
+        // Đăng ký trực tiếp với các form
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Login form submitted');
+                handleLogin();
+            });
+        }
+        
+        const registerForm = document.getElementById('register-form');
+        if (registerForm) {
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Register form submitted');
+                handleRegister();
+            });
+        }
+        
+        // Subscribe to events
+        EventBus.subscribe('auth:loginResult', handleLoginResult);
+        EventBus.subscribe('auth:registerResult', handleRegisterResult);
+        
+        console.log('LoginView initialized successfully');
     }
     
     /**
@@ -463,15 +301,9 @@ const LoginView = (function() {
      * @param {string} tabName - Tên tab ('login' hoặc 'register')
      */
     function switchAuthTab(tabName) {
-        console.log('Switching to auth tab:', tabName);
-        
-        if (!elements.authTabs || !elements.loginForm || !elements.registerForm) {
-            console.error('Auth tabs or forms not found');
-            return;
-        }
-        
         // Update tab buttons
-        elements.authTabs.forEach(btn => {
+        const tabButtons = document.querySelectorAll('.auth-tab');
+        tabButtons.forEach(btn => {
             btn.classList.remove('active');
         });
         
@@ -481,13 +313,16 @@ const LoginView = (function() {
         }
         
         // Update forms
-        elements.loginForm.classList.remove('active');
-        elements.registerForm.classList.remove('active');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
         
-        if (tabName === 'login') {
-            elements.loginForm.classList.add('active');
-        } else if (tabName === 'register') {
-            elements.registerForm.classList.add('active');
+        if (loginForm) loginForm.classList.remove('active');
+        if (registerForm) registerForm.classList.remove('active');
+        
+        if (tabName === 'login' && loginForm) {
+            loginForm.classList.add('active');
+        } else if (tabName === 'register' && registerForm) {
+            registerForm.classList.add('active');
         }
         
         // Update title
@@ -495,86 +330,18 @@ const LoginView = (function() {
         if (authHeader) {
             authHeader.textContent = tabName === 'login' ? 'Đăng Nhập' : 'Đăng Ký';
         }
-        
-        console.log('Auth tab switched to:', tabName);
     }
     
-    /**
-     * Hiển thị thông báo lỗi bên ngoài form
-     * @param {string} message - Nội dung thông báo
-     * @param {string} type - Loại thông báo ('error', 'success', 'info')
-     */
-    function showNotification(message, type = 'error') {
-        console.log('Showing notification:', message, 'type:', type);
-        
-        // Check if notification exists
-        let notification = document.querySelector('.login-notification');
-        
-        if (!notification) {
-            // Create notification element
-            notification = document.createElement('div');
-            notification.className = 'login-notification';
-            
-            // Add to DOM
-            const container = document.querySelector('.login-container');
-            if (container) {
-                container.insertBefore(notification, container.firstChild);
-            } else {
-                document.body.appendChild(notification);
-            }
-        }
-        
-        // Set class based on type
-        notification.className = `login-notification ${type}`;
-        notification.textContent = message;
-        
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 500);
-        }, 5000);
-    }
+    // Khởi tạo khi DOM đã tải xong
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM content loaded, initializing LoginView');
+        init();
+    });
     
-    /**
-     * Đặt trạng thái loading
-     * @param {boolean} isLoading - Trạng thái loading
-     */
-    function setLoading(isLoading) {
-        console.log('Setting loading state:', isLoading);
-        
-        const buttons = document.querySelectorAll('button');
-        const inputs = document.querySelectorAll('input');
-        
-        // Disable/enable buttons and inputs
-        buttons.forEach(button => {
-            button.disabled = isLoading;
-        });
-        
-        inputs.forEach(input => {
-            input.disabled = isLoading;
-        });
-        
-        // Show/hide loading container
-        if (elements.loadingContainer) {
-            elements.loadingContainer.style.display = isLoading ? 'flex' : 'none';
-        }
-    }
-    
-    // Khởi tạo LoginView
-    init();
-    
-    // Public API
     return {
         init,
-        showNotification,
-        setLoading,
         switchAuthTab
     };
 })();
 
-// Export LoginView
 export default LoginView;

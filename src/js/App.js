@@ -54,24 +54,40 @@ const App = (function() {
         }
     }
     
-    /**
-     * Phát hiện trang hiện tại dựa vào URL
-     * @returns {string} Tên trang ('app', 'login', 'landing')
-     */
-    function detectCurrentPage() {
-        const pathname = window.location.pathname;
-        
-        if (pathname.includes('app.html')) {
-            return 'app';
-        } else if (pathname.includes('login.html')) {
-            return 'login';
-        } else if (pathname.includes('landing.html') || pathname.includes('index.html') || pathname.endsWith('/') || pathname === '') {
-            return 'landing';
-        }
-        
-        // Mặc định
+   /**
+ * Phát hiện trang hiện tại dựa vào URL
+ * @returns {string} Tên trang ('app', 'login', 'landing')
+ */
+function detectCurrentPage() {
+    const pathname = window.location.pathname;
+    
+    // Kiểm tra chính xác hơn bằng cách sử dụng cả pathname và filename
+    if (pathname.includes('app.html') || pathname.endsWith('/app')) {
+        return 'app';
+    } else if (pathname.includes('login.html') || pathname.endsWith('/login')) {
+        return 'login';
+    } else if (pathname.includes('landing.html') || pathname.includes('index.html') || pathname === '/' || pathname.endsWith('/landing')) {
         return 'landing';
     }
+    
+    // Kiểm tra nếu pathname không chứa filename (có thể là vì URL được rewrite)
+    const noExtension = !pathname.includes('.html');
+    if (noExtension) {
+        // Kiểm tra bằng end of path
+        const pathParts = pathname.split('/').filter(Boolean);
+        const lastPath = pathParts.length > 0 ? pathParts[pathParts.length - 1] : '';
+        
+        if (lastPath === 'app') return 'app';
+        if (lastPath === 'login') return 'login';
+        if (lastPath === 'landing' || lastPath === '') return 'landing';
+    }
+    
+    // Log để debug
+    console.log('Current pathname:', pathname);
+    
+    // Mặc định
+    return 'landing';
+}
     
     /**
      * Khởi tạo các services
@@ -100,43 +116,53 @@ const App = (function() {
         }
     }
     
-    /**
-     * Khởi tạo các controllers
-     */
-    function initializeControllers() {
-        console.log('Initializing controllers...');
+
+/**
+ * Khởi tạo các controllers
+ */
+async function initializeControllers() {
+    console.log('Initializing controllers...');
+    
+    try {
+        // Khởi tạo các controllers theo thứ tự phụ thuộc
+        // Khởi tạo AuthController trước
+        await AuthController.init();
         
-        try {
-            // Khởi tạo các controllers theo thứ tự phụ thuộc
-            // Kiểm tra xem các controllers có phương thức init không, vì không phải tất cả controllers đều có
-            if (typeof AuthController.init === 'function') {
-                AuthController.init();
-            }
+        // Kiểm tra xem đang ở trang nào
+        const currentPage = detectCurrentPage();
+        
+        // Chỉ khởi tạo các controller cần thiết cho trang hiện tại
+        if (currentPage === 'app') {
+            // UIController là class, cần tạo instance
+            window.uiController = new UIController(ApiService);
+            window.uiController.init();
             
-            if (typeof UIController.init === 'function') {
-                UIController.init();
-            }
-            
+            // Khởi tạo các controller khác
             if (typeof AnalysisController.init === 'function') {
                 AnalysisController.init();
             }
             
-            // ChatController có thể đã được khởi tạo tự động khi import
-            if (typeof ChatController.init === 'function' && !ChatController.initialized) {
+            if (typeof ChatController.init === 'function') {
                 ChatController.init();
             }
             
             if (typeof AppController.init === 'function') {
                 AppController.init();
             }
-            
-            console.log('Controllers initialized successfully');
-        } catch (error) {
-            console.error('Error initializing controllers:', error);
-            throw new Error('Controller initialization failed: ' + error.message);
+        } else if (currentPage === 'login') {
+            // Khởi tạo các controller cần thiết cho trang login
+            // ...
+        } else if (currentPage === 'landing') {
+            // Khởi tạo các controller cần thiết cho trang landing
+            // ...
         }
+        
+        console.log('Controllers initialized successfully');
+    } catch (error) {
+        console.error('Error initializing controllers:', error);
+        throw new Error('Controller initialization failed: ' + error.message);
     }
-    
+}
     /**
      * Khởi tạo view dựa vào trang hiện tại
      * @param {string} page - Tên trang hiện tại

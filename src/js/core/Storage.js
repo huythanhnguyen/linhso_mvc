@@ -51,13 +51,14 @@ class Storage {
         localStorage.removeItem(Config.STORAGE.USER);
     }
     
-    /**
-     * Check if user is authenticated
-     * @returns {boolean} True if authenticated, false otherwise
-     */
-    static isAuthenticated() {
-        return !!this.getAuthToken();
-    }
+  /**
+ * Check if user is authenticated
+ * @returns {boolean} True if authenticated, false otherwise
+ */
+static isAuthenticated() {
+    const token = this.getAuthToken();
+    return !!token;
+}
 }
 
 export default Storage;
