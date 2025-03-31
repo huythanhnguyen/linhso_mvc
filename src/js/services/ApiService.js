@@ -8,6 +8,35 @@ import Utils from '../core/Utils.js';
 import EventBus from '../core/EventBus.js';
 
 class ApiService {
+    static baseUrl = Config.API_BASE_URL;
+    static initialized = false;
+    
+    /**
+     * Initialize the API service
+     * @param {string} baseUrl - Optional base URL to override config
+     * @returns {boolean} Success status
+     */
+    static init(baseUrl = null) {
+        console.log('Initializing ApiService...');
+        
+        try {
+            if (baseUrl) {
+                this.baseUrl = baseUrl;
+                console.log('Using custom base URL:', baseUrl);
+            } else {
+                this.baseUrl = Config.API_BASE_URL;
+                console.log('Using config base URL:', this.baseUrl);
+            }
+            
+            this.initialized = true;
+            console.log('ApiService initialized successfully');
+            return true;
+        } catch (error) {
+            console.error('Error initializing ApiService:', error);
+            return false;
+        }
+    }
+    
     /**
      * Send a request to the API
      * @param {string} endpoint - API endpoint
@@ -17,8 +46,14 @@ class ApiService {
      * @returns {Promise} Response from the API
      */
     static async request(endpoint, method = 'GET', data = null, auth = true) {
+        // Make sure service is initialized
+        if (!this.initialized) {
+            this.init();
+        }
+        
         // Construct the full URL
-        const url = `${Config.API_BASE_URL}${endpoint}`;
+        const url = `${this.baseUrl}${endpoint}`;
+        console.log(`API ${method} request to: ${url}`);
         
         // Setup request options
         const options = {
@@ -35,6 +70,7 @@ class ApiService {
                 options.headers['Authorization'] = `Bearer ${token}`;
             } else if (auth) {
                 // Return a rejected promise instead of throwing an error immediately
+                console.error('Authentication token not found');
                 return Promise.reject(new Error('Không tìm thấy token xác thực'));
             }
         }
@@ -63,7 +99,7 @@ class ApiService {
             // Check for authentication errors 
             if (response.status === 401) {
                 // Token không hợp lệ hoặc đã hết hạn
-                Utils.debug('Authentication error: 401 Unauthorized');
+                console.error('Authentication error: 401 Unauthorized');
                 
                 // Phát sự kiện thông báo lỗi xác thực
                 EventBus.publish('authError', { 
@@ -82,23 +118,25 @@ class ApiService {
             
             // Check if the request was successful
             if (!response.ok) {
+                console.error(`API error: ${response.status} ${response.statusText}`, responseData);
                 const error = new Error(responseData.message || 'API request failed');
                 error.status = response.status;
                 error.response = responseData;
                 throw error;
             }
             
+            console.log(`API response received (${response.status})`, responseData);
             return responseData;
         } catch (error) {
             if (error.name === 'AbortError') {
-                Utils.debug('API Request Timeout:', endpoint);
+                console.error('API Request Timeout:', endpoint);
                 // Create a more descriptive error for timeout
                 const timeoutError = new Error('Request timeout');
                 timeoutError.isTimeout = true;
                 throw timeoutError;
             }
             
-            Utils.debug('API Error:', error);
+            console.error('API Error:', error);
             throw error;
         }
     }
@@ -113,11 +151,16 @@ class ApiService {
      */
     static async login(email, password) {
         try {
+            console.log('Login attempt with email:', email);
             const response = await this.request(Config.AUTH.LOGIN, 'POST', { email, password }, false);
+            console.log('Login successful', response);
             return response;
         } catch (error) {
-            Utils.debug('Login error:', error);
-            throw error;
+            console.error('Login error:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.'
+            };
         }
     }
     
@@ -130,11 +173,16 @@ class ApiService {
      */
     static async register(name, email, password) {
         try {
+            console.log('Register attempt with email:', email);
             const response = await this.request(Config.AUTH.REGISTER, 'POST', { name, email, password }, false);
+            console.log('Register successful', response);
             return response;
         } catch (error) {
-            Utils.debug('Register error:', error);
-            throw error;
+            console.error('Register error:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Đăng ký thất bại. Email có thể đã được sử dụng.'
+            };
         }
     }
     
@@ -144,13 +192,15 @@ class ApiService {
      */
     static async logout() {
         try {
+            console.log('Logout attempt');
             await this.request(Config.AUTH.LOGOUT, 'POST');
+            console.log('Logout successful');
+            return { success: true };
         } catch (error) {
             // Even if the server request fails, we still want to clear local storage
-            Utils.debug('Logout error:', error);
+            console.error('Logout error:', error);
+            return { success: true };
         }
-        
-        return { success: true };
     }
     
     /**
@@ -159,9 +209,12 @@ class ApiService {
      */
     static async verifyToken() {
         try {
+            console.log('Verifying authentication token');
             const response = await this.request(Config.AUTH.VERIFY_TOKEN, 'GET');
+            console.log('Token verification successful', response);
             return { valid: true, user: response.user };
         } catch (error) {
+            console.error('Token verification error:', error);
             return { valid: false, error: error.message };
         }
     }
@@ -173,6 +226,7 @@ class ApiService {
      * @returns {Promise} Change password response
      */
     static async changePassword(currentPassword, newPassword) {
+        console.log('Change password attempt');
         return await this.request(Config.AUTH.CHANGE_PASSWORD, 'POST', {
             currentPassword,
             newPassword
@@ -188,12 +242,14 @@ class ApiService {
      */
     static async analyzePhoneNumber(input) {
         try {
+            console.log('Analyzing phone number:', input);
             // Gửi input trực tiếp mà không xử lý
             const response = await this.request(Config.ANALYSIS.ANALYZE, 'POST', { phoneNumber: input });
+            console.log('Received analysis response');
             Utils.debug('Received analysis response:', response);
             return response;
         } catch (error) {
-            Utils.debug('Error in analyzePhoneNumber API call:', error);
+            console.error('Error in analyzePhoneNumber API call:', error);
             throw error;
         }
     }
@@ -206,6 +262,7 @@ class ApiService {
      */
     static async getAnalysisHistory(limit = 20, page = 1) {
         try {
+            console.log('Getting analysis history, page:', page, 'limit:', limit);
             // Tạo query parameters nếu có
             const queryParams = new URLSearchParams();
             if (limit) queryParams.append('limit', limit);
@@ -215,6 +272,7 @@ class ApiService {
             const endpoint = `${Config.ANALYSIS.HISTORY}${queryString}`;
             
             const response = await this.request(endpoint, 'GET');
+            console.log('Received history response');
             
             // Chuẩn hóa dữ liệu, chuyển history -> data
             if (response.success && response.history && Array.isArray(response.history)) {
@@ -239,7 +297,7 @@ class ApiService {
             
             return response;
         } catch (error) {
-            Utils.debug('Error retrieving analysis history:', error);
+            console.error('Error retrieving analysis history:', error);
             
             // Đảm bảo trả về object có cấu trúc nhất quán trong trường hợp lỗi
             return {
@@ -256,6 +314,7 @@ class ApiService {
      * @returns {Promise} Delete response
      */
     static async deleteAnalysisHistory() {
+        console.log('Deleting analysis history');
         return await this.request(Config.ANALYSIS.DELETE_HISTORY, 'DELETE');
     }
     
@@ -267,6 +326,7 @@ class ApiService {
      * @returns {Promise} Feedback response
      */
     static async sendFeedback(analysisId, feedbackType, comment = '') {
+        console.log('Sending feedback for analysis:', analysisId, 'type:', feedbackType);
         return await this.request(Config.ANALYSIS.FEEDBACK, 'POST', {
             analysisId,
             feedbackType,
@@ -282,8 +342,11 @@ class ApiService {
      */
     static async askQuestion(options, questionText) {
         try {
+            console.log('Asking question:', options, questionText ? `Text: ${questionText}` : '');
+            
             // Xử lý cú pháp cũ: askQuestion(phoneNumber, question)
             if (typeof options === 'string') {
+                console.log('Using legacy question format');
                 return await this.request(Config.ANALYSIS.QUESTION, 'POST', {
                     phoneNumber: options,
                     question: questionText,
@@ -322,17 +385,17 @@ class ApiService {
                     break;
                     
                 default:
-                    Utils.debug('Không nhận dạng được loại câu hỏi, sử dụng mặc định: question');
+                    console.warn('Không nhận dạng được loại câu hỏi, sử dụng mặc định: question');
                     payload.type = 'question';
                     if (options.phoneNumber) {
                         payload.phoneNumber = options.phoneNumber;
                     }
             }
             
-            Utils.debug('Sending question with payload:', payload);
+            console.log('Sending question with payload:', payload);
             return await this.request(Config.ANALYSIS.QUESTION, 'POST', payload);
         } catch (error) {
-            Utils.debug('Error in askQuestion API call:', error);
+            console.error('Error in askQuestion API call:', error);
             throw error;
         }
     }
@@ -343,6 +406,7 @@ class ApiService {
      * @returns {Promise} Recent analyses
      */
     static async getRecentAnalyses(limit = 5) {
+        console.log('Getting recent analyses, limit:', limit);
         return await this.request(`${Config.ANALYSIS.RECENT}?limit=${limit}`, 'GET');
     }
 }

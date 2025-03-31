@@ -6,11 +6,32 @@
  */
 class StorageService {
     /**
+     * Khởi tạo StorageService
+     * @returns {boolean} Trạng thái khởi tạo
+     */
+    static init() {
+        console.log('Initializing StorageService...');
+        try {
+            // Kiểm tra xem localStorage có khả dụng không
+            if (this.isAvailable()) {
+                console.log('StorageService initialized successfully, localStorage is available');
+                return true;
+            } else {
+                console.warn('StorageService initialized, but localStorage is not available');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error initializing StorageService:', error);
+            return false;
+        }
+    }
+
+    /**
      * Lấy dữ liệu từ localStorage
      * @param {string} key - Khóa cần lấy
      * @returns {string|null} Giá trị lưu trữ
      */
-    getItem(key) {
+    static getItem(key) {
         try {
             return localStorage.getItem(key);
         } catch (error) {
@@ -25,7 +46,7 @@ class StorageService {
      * @param {string} value - Giá trị cần lưu
      * @returns {boolean} Kết quả lưu
      */
-    setItem(key, value) {
+    static setItem(key, value) {
         try {
             localStorage.setItem(key, value);
             return true;
@@ -40,7 +61,7 @@ class StorageService {
      * @param {string} key - Khóa cần xóa
      * @returns {boolean} Kết quả xóa
      */
-    removeItem(key) {
+    static removeItem(key) {
         try {
             localStorage.removeItem(key);
             return true;
@@ -55,7 +76,7 @@ class StorageService {
      * @param {string} key - Khóa cần lấy
      * @returns {Object|null} Đối tượng đã phân tích
      */
-    getObject(key) {
+    static getObject(key) {
         const data = this.getItem(key);
         
         if (!data) return null;
@@ -74,7 +95,7 @@ class StorageService {
      * @param {Object} object - Đối tượng cần lưu
      * @returns {boolean} Kết quả lưu
      */
-    setObject(key, object) {
+    static setObject(key, object) {
         try {
             const json = JSON.stringify(object);
             return this.setItem(key, json);
@@ -88,7 +109,7 @@ class StorageService {
      * Kiểm tra xem localStorage có khả dụng không
      * @returns {boolean} Kết quả kiểm tra
      */
-    isAvailable() {
+    static isAvailable() {
         try {
             const testKey = '_storage_test_';
             localStorage.setItem(testKey, testKey);
@@ -101,8 +122,9 @@ class StorageService {
 
     /**
      * Xóa tất cả dữ liệu trong localStorage
+     * @returns {boolean} Kết quả xóa
      */
-    clear() {
+    static clear() {
         try {
             localStorage.clear();
             return true;

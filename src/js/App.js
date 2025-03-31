@@ -42,19 +42,7 @@ const App = (function() {
             initializeServices();
             
             // Khởi tạo Controllers
-          
-            function initializeControllers() {
-                console.log('Initializing controllers...');
-                
-                // Đảm bảo dòng này tồn tại và được gọi
-                AuthController.init();
-                
-                // Thêm đăng ký sự kiện nếu cần
-                EventBus.subscribe('auth:login', function(data) {
-                    console.log('Auth:login event captured in App.js', data);
-                    AuthController.login(data.email, data.password);
-                });
-            }
+            initializeControllers();
             
             // Khởi tạo View dựa vào trang hiện tại
             initializeView(currentPage);
@@ -77,7 +65,7 @@ const App = (function() {
             return 'app';
         } else if (pathname.includes('login.html')) {
             return 'login';
-        } else if (pathname.includes('landingpage.html') || pathname.includes('index.html') || pathname === '/') {
+        } else if (pathname.includes('landing.html') || pathname.includes('index.html') || pathname.endsWith('/') || pathname === '') {
             return 'landing';
         }
         
@@ -95,8 +83,15 @@ const App = (function() {
             // Khởi tạo các services theo thứ tự phụ thuộc
             ApiService.init(Config.API_BASE_URL);
             StorageService.init();
-            AnalysisService.init();
-            ChatService.init();
+            
+            // Các service khác có thể không có phương thức init, kiểm tra trước khi gọi
+            if (typeof AnalysisService.init === 'function') {
+                AnalysisService.init();
+            }
+            
+            if (typeof ChatService.init === 'function') {
+                ChatService.init();
+            }
             
             console.log('Services initialized successfully');
         } catch (error) {
@@ -113,11 +108,27 @@ const App = (function() {
         
         try {
             // Khởi tạo các controllers theo thứ tự phụ thuộc
-            AuthController.init();
-            UIController.init();
-            AnalysisController.init();
-            ChatController.init();
-            AppController.init();
+            // Kiểm tra xem các controllers có phương thức init không, vì không phải tất cả controllers đều có
+            if (typeof AuthController.init === 'function') {
+                AuthController.init();
+            }
+            
+            if (typeof UIController.init === 'function') {
+                UIController.init();
+            }
+            
+            if (typeof AnalysisController.init === 'function') {
+                AnalysisController.init();
+            }
+            
+            // ChatController có thể đã được khởi tạo tự động khi import
+            if (typeof ChatController.init === 'function' && !ChatController.initialized) {
+                ChatController.init();
+            }
+            
+            if (typeof AppController.init === 'function') {
+                AppController.init();
+            }
             
             console.log('Controllers initialized successfully');
         } catch (error) {
@@ -136,19 +147,26 @@ const App = (function() {
         try {
             switch (page) {
                 case 'app':
-                    AppView.init();
+                    if (typeof AppView.init === 'function') {
+                        AppView.init();
+                    }
                     break;
                     
                 case 'login':
-                    LoginView.init();
+                    // LoginView đã tự khởi tạo
+                    // LoginView.init();
                     break;
                     
                 case 'landing':
-                    LandingView.init();
+                    if (typeof LandingView.init === 'function') {
+                        LandingView.init();
+                    }
                     break;
                     
                 default:
-                    LandingView.init();
+                    if (typeof LandingView.init === 'function') {
+                        LandingView.init();
+                    }
                     break;
             }
             

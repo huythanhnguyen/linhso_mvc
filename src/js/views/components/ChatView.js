@@ -10,11 +10,25 @@ import Utils from '../../core/Utils.js';
 const ChatView = (function() {
     // Cache DOM elements
     let elements = {};
+    let initialized = false;
     
     /**
      * Khởi tạo view
      */
     function init() {
+        console.log('ChatView initializing...');
+        
+        if (initialized) {
+            console.log('ChatView already initialized');
+            return;
+        }
+        
+        // Check if we're on the app page
+        if (!document.getElementById('app-container')) {
+            console.log('Not on app page, skipping ChatView initialization');
+            return;
+        }
+        
         // Cache DOM elements
         elements = {
             chatContainer: document.getElementById('chat-container'),
@@ -25,9 +39,18 @@ const ChatView = (function() {
             welcomeBanner: document.getElementById('welcome-banner')
         };
         
+        console.log('ChatView elements:', elements);
+        
+        // Check if elements were found
+        if (!elements.chatMessages || !elements.userInput) {
+            console.warn('Chat elements not found in the DOM. Make sure the IDs match those in the HTML.');
+            return;
+        }
+        
         // Set up event listeners
         if (elements.sendButton) {
             elements.sendButton.addEventListener('click', handleSendMessage);
+            console.log('Set up send button listener');
         }
         
         if (elements.userInput) {
@@ -43,14 +66,20 @@ const ChatView = (function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
+            
+            console.log('Set up user input listeners');
         }
         
         // Subscribe to events
-        EventBus.subscribe('message:user', addUserMessage);
-        EventBus.subscribe('message:bot', addBotMessage);
-        EventBus.subscribe('chat:clear', clearChat);
-        EventBus.subscribe('typing:start', showTypingIndicator);
-        EventBus.subscribe('typing:stop', hideTypingIndicator);
+        EventBus.subscribe('chat:user-message-added', handleUserMessageAdded);
+        EventBus.subscribe('chat:bot-message-added', handleBotMessageAdded);
+        EventBus.subscribe('chat:typing-started', showTypingIndicator);
+        EventBus.subscribe('chat:typing-ended', hideTypingIndicator);
+        EventBus.subscribe('chat:cleared', handleChatCleared);
+        console.log('Subscribed to chat events');
+        
+        initialized = true;
+        console.log('ChatView initialized successfully');
     }
     
     /**
@@ -58,17 +87,45 @@ const ChatView = (function() {
      * @private
      */
     function handleSendMessage() {
-        if (!elements.userInput) return;
+        console.log('Send message button clicked');
+        
+        if (!elements.userInput) {
+            console.error('User input element not found');
+            return;
+        }
         
         const text = elements.userInput.value.trim();
-        if (!text) return;
+        if (!text) {
+            console.log('Empty message, ignoring');
+            return;
+        }
+        
+        console.log('Sending message:', text);
         
         // Clear input
         elements.userInput.value = '';
         elements.userInput.style.height = 'auto';
         
         // Emit event
-        EventBus.publish('user:message', text);
+        EventBus.publish('chat:send-message', text);
+    }
+    
+    /**
+     * Xử lý khi có tin nhắn người dùng được thêm vào
+     * @param {Object} message - Đối tượng tin nhắn
+     */
+    function handleUserMessageAdded(message) {
+        console.log('Adding user message to chat:', message);
+        addUserMessage(message);
+    }
+    
+    /**
+     * Xử lý khi có tin nhắn bot được thêm vào
+     * @param {Object} message - Đối tượng tin nhắn
+     */
+    function handleBotMessageAdded(message) {
+        console.log('Adding bot message to chat:', message);
+        addBotMessage(message);
     }
     
     /**
@@ -76,94 +133,134 @@ const ChatView = (function() {
      * @param {Object} message - Đối tượng tin nhắn
      */
     function addUserMessage(message) {
-        if (!elements.chatMessages) return;
+        console.log('Adding user message to DOM:', message);
+        
+        if (!elements.chatMessages) {
+            console.error('Chat messages container not found');
+            return;
+        }
         
         // Hide welcome banner if visible
         if (elements.welcomeBanner) {
             elements.welcomeBanner.style.display = 'none';
         }
         
-        const messageHTML = Templates.userMessage(message);
-        elements.chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-        
-        scrollToBottom();
+        try {
+            // Create message element
+            const messageHTML = Templates.userMessage(message);
+            elements.chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+            console.log('User message added to DOM');
+            
+            // Scroll to bottom
+            scrollToBottom();
+        } catch (error) {
+            console.error('Error adding user message:', error);
+        }
     }
     
     /**
      * Thêm tin nhắn của bot vào chat
      * @param {Object} message - Đối tượng tin nhắn
-     * @param {Object} analysisData - Dữ liệu phân tích (nếu có)
      */
-    function addBotMessage(message, analysisData = null) {
-        if (!elements.chatMessages) return;
+    function addBotMessage(message) {
+        console.log('Adding bot message to DOM:', message);
+        
+        if (!elements.chatMessages) {
+            console.error('Chat messages container not found');
+            return;
+        }
         
         // Hide welcome banner if visible
         if (elements.welcomeBanner) {
             elements.welcomeBanner.style.display = 'none';
         }
         
-        const messageHTML = Templates.botMessage(message);
-        elements.chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-        
-        // Get the added message element
-        const messageElement = document.getElementById(message.id);
-        
-        // Add analysis data if provided
-        if (analysisData && messageElement) {
-            const analysisHTML = Templates.analysisContainer(analysisData);
-            messageElement.querySelector('.analysis-data').innerHTML = analysisHTML;
-            messageElement.querySelector('.analysis-data').classList.remove('hidden');
+        try {
+            // Create message element
+            const messageHTML = Templates.botMessage(message);
+            elements.chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+            console.log('Bot message added to DOM');
             
-            // Set up details toggle
-            const detailsToggle = messageElement.querySelector('.details-toggle');
-            if (detailsToggle) {
-                detailsToggle.addEventListener('click', function() {
-                    const expanded = this.getAttribute('data-expanded') === 'true';
-                    const detailsSection = messageElement.querySelector('.analysis-details');
-                    
-                    if (expanded) {
-                        detailsSection.style.display = 'none';
-                        this.setAttribute('data-expanded', 'false');
-                        this.textContent = 'Xem chi tiết';
-                    } else {
-                        detailsSection.style.display = 'block';
-                        this.setAttribute('data-expanded', 'true');
-                        this.textContent = 'Ẩn chi tiết';
-                        
-                        // Load details content if empty
-                        if (detailsSection.innerHTML.trim() === '') {
-                            EventBus.publish('analysis:loadDetails', {
-                                element: detailsSection,
-                                data: analysisData
-                            });
-                        }
-                    }
-                });
+            // Get the added message element
+            const messageElement = document.getElementById(message.id);
+            
+            // Add analysis data if provided
+            if (message.analysisData && messageElement) {
+                const analysisHTML = Templates.analysisContainer(message.analysisData);
+                
+                const analysisDataElement = messageElement.querySelector('.analysis-data');
+                if (analysisDataElement) {
+                    analysisDataElement.innerHTML = analysisHTML;
+                    analysisDataElement.classList.remove('hidden');
+                    console.log('Analysis data added to message');
+                }
+                
+                // Set up details toggle
+                setupAnalysisInteractions(messageElement, message.analysisData);
             }
             
-            // Set up category buttons
-            const categoryButtons = messageElement.querySelectorAll('.category-btn');
-            categoryButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const category = this.getAttribute('data-category');
-                    EventBus.publish('category:selected', category);
-                });
+            // Scroll to bottom
+            scrollToBottom();
+        } catch (error) {
+            console.error('Error adding bot message:', error);
+        }
+    }
+    
+    /**
+     * Thiết lập tương tác cho phân tích
+     * @param {HTMLElement} messageElement - Phần tử tin nhắn
+     * @param {Object} analysisData - Dữ liệu phân tích
+     */
+    function setupAnalysisInteractions(messageElement, analysisData) {
+        // Set up details toggle
+        const detailsToggle = messageElement.querySelector('.details-toggle');
+        if (detailsToggle) {
+            detailsToggle.addEventListener('click', function() {
+                const expanded = this.getAttribute('data-expanded') === 'true';
+                const detailsSection = messageElement.querySelector('.analysis-details');
+                
+                if (expanded) {
+                    detailsSection.style.display = 'none';
+                    this.setAttribute('data-expanded', 'false');
+                    this.textContent = 'Xem chi tiết';
+                } else {
+                    detailsSection.style.display = 'block';
+                    this.setAttribute('data-expanded', 'true');
+                    this.textContent = 'Ẩn chi tiết';
+                    
+                    // Load details content if empty
+                    if (detailsSection.innerHTML.trim() === '') {
+                        EventBus.publish('analysis:loadDetails', {
+                            element: detailsSection,
+                            data: analysisData
+                        });
+                    }
+                }
             });
-            
-            // Show suggestions
-            messageElement.querySelector('.suggestion-text').classList.remove('hidden');
-            messageElement.querySelector('.suggestion-chips').classList.remove('hidden');
-            
-            // Set up example questions
-            setupExampleQuestions(messageElement, analysisData);
         }
         
-        scrollToBottom();
+        // Set up category buttons
+        const categoryButtons = messageElement.querySelectorAll('.category-btn');
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                EventBus.publish('chat:category-selected', category);
+            });
+        });
+        
+        // Show suggestions
+        const suggestionText = messageElement.querySelector('.suggestion-text');
+        const suggestionChips = messageElement.querySelector('.suggestion-chips');
+        
+        if (suggestionText) suggestionText.classList.remove('hidden');
+        if (suggestionChips) suggestionChips.classList.remove('hidden');
+        
+        // Set up example questions
+        setupExampleQuestions(messageElement, analysisData);
     }
     
     /**
      * Thiết lập câu hỏi mẫu dựa trên dữ liệu phân tích
-     * @private
      * @param {HTMLElement} messageElement - Phần tử tin nhắn
      * @param {Object} analysisData - Dữ liệu phân tích
      */
@@ -203,9 +300,43 @@ const ChatView = (function() {
     }
     
     /**
+     * Xử lý khi chat được xóa
+     * @param {Array} messages - Mảng tin nhắn còn lại (nếu có)
+     */
+    function handleChatCleared(messages) {
+        console.log('Clearing chat display, remaining messages:', messages);
+        
+        if (!elements.chatMessages) {
+            console.error('Chat messages container not found');
+            return;
+        }
+        
+        // Clear all messages
+        elements.chatMessages.innerHTML = '';
+        
+        // Add back welcome message if provided
+        if (messages && messages.length > 0) {
+            // Usually the first message is the welcome message
+            const welcomeMessage = messages[0];
+            if (welcomeMessage && welcomeMessage.role === 'assistant') {
+                addBotMessage(welcomeMessage);
+            }
+        }
+        
+        // Show welcome banner if it exists
+        if (elements.welcomeBanner) {
+            elements.welcomeBanner.style.display = 'flex';
+        }
+        
+        console.log('Chat display cleared');
+    }
+    
+    /**
      * Hiển thị typing indicator
      */
     function showTypingIndicator() {
+        console.log('Showing typing indicator');
+        
         if (elements.typingIndicator) {
             elements.typingIndicator.classList.remove('hidden');
         }
@@ -215,28 +346,15 @@ const ChatView = (function() {
      * Ẩn typing indicator
      */
     function hideTypingIndicator() {
+        console.log('Hiding typing indicator');
+        
         if (elements.typingIndicator) {
             elements.typingIndicator.classList.add('hidden');
         }
     }
     
     /**
-     * Xóa tất cả tin nhắn chat
-     */
-    function clearChat() {
-        if (elements.chatMessages) {
-            elements.chatMessages.innerHTML = '';
-        }
-        
-        // Show welcome banner
-        if (elements.welcomeBanner) {
-            elements.welcomeBanner.style.display = 'flex';
-        }
-    }
-    
-    /**
      * Cuộn chat xuống dưới cùng
-     * @private
      */
     function scrollToBottom() {
         if (elements.chatMessages) {
@@ -244,13 +362,15 @@ const ChatView = (function() {
         }
     }
     
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', init);
+    
     return {
         init,
         addUserMessage,
         addBotMessage,
         showTypingIndicator,
-        hideTypingIndicator,
-        clearChat
+        hideTypingIndicator
     };
 })();
 

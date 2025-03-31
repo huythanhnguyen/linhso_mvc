@@ -32,6 +32,15 @@ const Config = {
         DELETE_HISTORY: '/analysis/history'
     },
     
+    // Storage key names
+    STORAGE: {
+        TOKEN: 'phone_analysis_token',
+        USER: 'phone_analysis_user',
+        SETTINGS: 'phone_analysis_settings',
+        HISTORY: 'phone_analysis_history',
+        CHAT_HISTORY: 'phone_analysis_chat_history'
+    },
+    
     // Timeout for API requests in ms
     REQUEST_TIMEOUT: 15000,
     

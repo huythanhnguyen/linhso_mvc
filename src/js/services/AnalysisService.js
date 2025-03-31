@@ -5,8 +5,29 @@
 import ApiService from './ApiService.js';
 import AnalysisModel from '../models/AnalysisModel.js';
 import Utils from '../core/Utils.js';
+import EventBus from '../core/EventBus.js';
 
 class AnalysisService {
+    static initialized = false;
+
+    /**
+     * Initialize the Analysis Service
+     * @returns {boolean} Initialization status
+     */
+    static init() {
+        console.log('Initializing AnalysisService...');
+        
+        try {
+            // Any initialization code here
+            this.initialized = true;
+            console.log('AnalysisService initialized successfully');
+            return true;
+        } catch (error) {
+            console.error('Error initializing AnalysisService:', error);
+            return false;
+        }
+    }
+    
     /**
      * Analyze a phone number
      * @param {string} phoneNumber - Phone number to analyze
@@ -14,9 +35,12 @@ class AnalysisService {
      */
     static async analyzePhoneNumber(phoneNumber) {
         try {
+            console.log('Analyzing phone number:', phoneNumber);
+            
             const response = await ApiService.analyzePhoneNumber(phoneNumber);
             
             if (!response.success) {
+                console.error('Analysis failed:', response.message || 'Unknown error');
                 throw new Error(response.message || 'Không thể phân tích số điện thoại');
             }
             
@@ -27,9 +51,13 @@ class AnalysisService {
                 ...analysisData
             });
             
+            console.log('Analysis completed successfully');
+            EventBus.publish('analysis:completed', { phoneNumber, analysis });
+            
             return analysis.normalize();
         } catch (error) {
-            Utils.debug('Analysis error:', error);
+            console.error('Analysis error:', error);
+            EventBus.publish('analysis:error', { phoneNumber, error: error.message });
             throw error;
         }
     }
@@ -41,15 +69,20 @@ class AnalysisService {
      */
     static async askQuestion(options) {
         try {
+            console.log('Asking question:', options);
+            
             const response = await ApiService.askQuestion(options);
             
             if (!response.success) {
+                console.error('Question failed:', response.message || 'Unknown error');
                 throw new Error(response.message || 'Không thể trả lời câu hỏi');
             }
             
+            console.log('Question answered successfully');
             return response;
         } catch (error) {
-            Utils.debug('Question error:', error);
+            console.error('Question error:', error);
+            EventBus.publish('analysis:question:error', { options, error: error.message });
             throw error;
         }
     }
@@ -62,6 +95,8 @@ class AnalysisService {
      */
     static async getAnalysisHistory(limit = 20, page = 1) {
         try {
+            console.log('Getting analysis history, page:', page, 'limit:', limit);
+            
             const response = await ApiService.getAnalysisHistory(limit, page);
             
             if (!response.success && !response.data) {
@@ -75,6 +110,8 @@ class AnalysisService {
             // Convert data to AnalysisModel objects
             const analysisItems = response.data.map(item => new AnalysisModel(item).normalize());
             
+            console.log('Analysis history retrieved successfully, items:', analysisItems.length);
+            
             return {
                 success: true,
                 data: analysisItems,
@@ -86,7 +123,7 @@ class AnalysisService {
                 }
             };
         } catch (error) {
-            Utils.debug('History error:', error);
+            console.error('History error:', error);
             return {
                 success: false,
                 message: error.message || 'Lỗi khi lấy lịch sử phân tích',
@@ -101,10 +138,14 @@ class AnalysisService {
      */
     static async deleteAnalysisHistory() {
         try {
+            console.log('Deleting analysis history');
+            
             const response = await ApiService.deleteAnalysisHistory();
+            console.log('Analysis history deleted successfully');
+            
             return { success: true };
         } catch (error) {
-            Utils.debug('Delete history error:', error);
+            console.error('Delete history error:', error);
             return {
                 success: false,
                 message: error.message || 'Không thể xóa lịch sử phân tích'
@@ -121,10 +162,14 @@ class AnalysisService {
      */
     static async sendFeedback(analysisId, feedbackType, comment = '') {
         try {
+            console.log('Sending feedback for analysis:', analysisId, 'type:', feedbackType);
+            
             const response = await ApiService.sendFeedback(analysisId, feedbackType, comment);
+            console.log('Feedback sent successfully');
+            
             return { success: true };
         } catch (error) {
-            Utils.debug('Feedback error:', error);
+            console.error('Feedback error:', error);
             return {
                 success: false,
                 message: error.message || 'Không thể gửi phản hồi'

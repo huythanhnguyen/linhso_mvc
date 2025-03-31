@@ -7,6 +7,7 @@ import AnalysisService from './AnalysisService.js';
 import MessageModel from '../models/MessageModel.js';
 import EventBus from '../core/EventBus.js';
 import Utils from '../core/Utils.js';
+import Storage from '../core/Storage.js';
 
 class ChatService {
     // Chat state
@@ -26,13 +27,23 @@ class ChatService {
      * @returns {boolean} Success status
      */
     static init() {
+        console.log('Initializing ChatService...');
         try {
-            // Add welcome message to history
-            this.addToHistory('assistant', 'Xin chào! Tôi là trợ lý phân tích số điện thoại theo phương pháp Tứ Cát Tứ Hung. Bạn có thể nhập số điện thoại để tôi phân tích hoặc đặt câu hỏi về ý nghĩa các con số.');
+            // Try to load conversation history from storage
+            const history = this.loadConversationHistory();
+            if (history && history.length) {
+                this.state.conversationHistory = history;
+                console.log('Loaded conversation history:', history.length, 'messages');
+            } else {
+                // Add welcome message to history if no history exists
+                this.addToHistory('assistant', 'Xin chào! Tôi là trợ lý phân tích số điện thoại theo phương pháp Tứ Cát Tứ Hung. Bạn có thể nhập số điện thoại để tôi phân tích hoặc đặt câu hỏi về ý nghĩa các con số.');
+                console.log('Added welcome message to empty history');
+            }
             
+            console.log('ChatService initialized successfully');
             return true;
         } catch (error) {
-            Utils.debug('Error initializing chat:', error);
+            console.error('Error initializing chat:', error);
             return false;
         }
     }
@@ -42,7 +53,12 @@ class ChatService {
      * @param {string} input - User input text
      */
     static async processUserInput(input) {
-        if (this.state.processingInput) return;
+        console.log('Processing user input:', input);
+        
+        if (this.state.processingInput) {
+            console.log('Already processing input, ignoring new input');
+            return;
+        }
         
         this.state.processingInput = true;
         
@@ -55,9 +71,12 @@ class ChatService {
             
             // Phân tích loại đầu vào
             const inputType = this.detectInputType(input);
-            Utils.debug('Detected input type:', inputType);
+            console.log('Detected input type:', inputType);
             
             // Xử lý dựa vào loại input
+            let responseContent = '';
+            let analysisData = null;
+            
             switch(inputType) {
                 case 'phone':
                     // Lưu số điện thoại hiện tại và loại đầu vào
@@ -65,7 +84,9 @@ class ChatService {
                     this.state.context.lastPhoneNumber = input.replace(/\D/g, '');
                     this.state.context.questionCount = 0;
                     
-                    await this.processPhoneNumber(input);
+                    const phoneResult = await this.processPhoneNumber(input);
+                    responseContent = phoneResult.content;
+                    analysisData = phoneResult.analysisData;
                     break;
                     
                 case 'followup':
@@ -73,17 +94,21 @@ class ChatService {
                     this.state.context.questionCount++;
                     this.state.context.lastInputType = 'followup';
                     
-                    await this.processFollowUpQuestion(input);
+                    const followupResult = await this.processFollowUpQuestion(input);
+                    responseContent = followupResult.content;
+                    analysisData = followupResult.analysisData;
                     break;
                     
                 case 'general':
                     this.state.context.lastInputType = 'general';
-                    await this.processGeneralQuestion(input);
+                    const generalResult = await this.processGeneralQuestion(input);
+                    responseContent = generalResult.content;
                     break;
                     
                 case 'compare':
                     this.state.context.lastInputType = 'compare';
-                    await this.processCompareRequest(input);
+                    const compareResult = await this.processCompareRequest(input);
+                    responseContent = compareResult.content;
                     break;
                     
                 default:
@@ -91,27 +116,45 @@ class ChatService {
                     if (this.state.context.lastPhoneNumber) {
                         this.state.context.questionCount++;
                         this.state.context.lastInputType = 'question';
-                        await this.processQuestion(input);
+                        const questionResult = await this.processQuestion(input);
+                        responseContent = questionResult.content;
                     } else {
                         this.state.context.lastInputType = 'general';
-                        await this.processGeneralQuestion(input);
+                        const unknownResult = await this.processGeneralQuestion(input);
+                        responseContent = unknownResult.content;
                     }
                     break;
             }
+            
+            // Create message object for the response
+            const message = {
+                content: responseContent || 'Xin lỗi, tôi không thể xử lý yêu cầu của bạn.',
+                analysisData: analysisData
+            };
+            
+            // Thêm vào lịch sử trò chuyện
+            this.addToHistory('assistant', message.content, message.analysisData);
+            
+            // Publish message
+            EventBus.publish('chat:messageReceived', message);
+            
+            return message;
         } catch (error) {
-            Utils.debug('Error processing input:', error);
+            console.error('Error processing input:', error);
             
             // Create message model for the error
-            const errorMessage = new MessageModel({
-                role: 'assistant',
-                content: 'Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.'
-            });
+            const errorMessage = {
+                content: 'Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.',
+                analysisData: null
+            };
             
             // Publish message
             EventBus.publish('chat:messageReceived', errorMessage);
             
             // Add to history
             this.addToHistory('assistant', errorMessage.content);
+            
+            return errorMessage;
         } finally {
             // Hide typing indicator
             EventBus.publish('chat:typingEnded');
@@ -205,8 +248,11 @@ class ChatService {
     /**
      * Process a phone number
      * @param {string} phoneNumber - Phone number to process
+     * @returns {Object} Processing result
      */
     static async processPhoneNumber(phoneNumber) {
+        console.log('Processing phone number:', phoneNumber);
+        
         try {
             // Analyze the phone number
             const analysis = await AnalysisService.analyzePhoneNumber(phoneNumber);
@@ -222,52 +268,34 @@ class ChatService {
                 responseText = `Đã phân tích số điện thoại ${phoneNumber}.`;
             }
             
-            // Create message model
-            const message = new MessageModel({
-                role: 'assistant',
+            console.log('Phone number analyzed successfully');
+            
+            return {
                 content: responseText,
                 analysisData: analysis
-            });
-            
-            // Publish message
-            EventBus.publish('chat:messageReceived', message);
-            
-            // Add to history
-            this.addToHistory('assistant', responseText, analysis);
+            };
             
         } catch (error) {
-            Utils.debug('Error analyzing phone number:', error);
-            
-            // Create error message
-            const errorMessage = new MessageModel({
-                role: 'assistant',
-                content: 'Xin lỗi, đã xảy ra lỗi khi phân tích số điện thoại. Vui lòng thử lại sau.'
-            });
-            
-            // Publish message
-            EventBus.publish('chat:messageReceived', errorMessage);
-            
-            // Add to history
-            this.addToHistory('assistant', errorMessage.content);
+            console.error('Error analyzing phone number:', error);
+            throw error;
         }
     }
     
     /**
      * Process a question about a phone number
      * @param {string} question - Question to process
+     * @returns {Object} Processing result
      */
     static async processQuestion(question) {
+        console.log('Processing question:', question);
+        
         try {
             // Đảm bảo rằng chúng ta có một số điện thoại trong ngữ cảnh
             if (!this.state.context.lastPhoneNumber) {
-                const message = new MessageModel({
-                    role: 'assistant',
-                    content: 'Bạn cần nhập số điện thoại trước khi hỏi câu hỏi về nó. Hãy nhập một số điện thoại để tôi phân tích.'
-                });
-                
-                EventBus.publish('chat:messageReceived', message);
-                this.addToHistory('assistant', message.content);
-                return;
+                return {
+                    content: 'Bạn cần nhập số điện thoại trước khi hỏi câu hỏi về nó. Hãy nhập một số điện thoại để tôi phân tích.',
+                    analysisData: null
+                };
             }
             
             // Ask the question
@@ -289,39 +317,26 @@ class ChatService {
                 answer = 'Đã xử lý câu hỏi của bạn, nhưng không tìm thấy câu trả lời cụ thể.';
             }
             
-            // Create message model
-            const message = new MessageModel({
-                role: 'assistant',
-                content: answer
-            });
+            console.log('Question processed successfully');
             
-            // Publish message
-            EventBus.publish('chat:messageReceived', message);
-            
-            // Add to history
-            this.addToHistory('assistant', answer);
+            return {
+                content: answer,
+                analysisData: null
+            };
         } catch (error) {
-            Utils.debug('Error processing question:', error);
-            
-            // Create error message
-            const errorMessage = new MessageModel({
-                role: 'assistant',
-                content: 'Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.'
-            });
-            
-            // Publish message
-            EventBus.publish('chat:messageReceived', errorMessage);
-            
-            // Add to history
-            this.addToHistory('assistant', errorMessage.content);
+            console.error('Error processing question:', error);
+            throw error;
         }
     }
     
     /**
      * Process a follow-up question
      * @param {string} question - Follow-up question to process
+     * @returns {Object} Processing result
      */
     static async processFollowUpQuestion(question) {
+        console.log('Processing follow-up question:', question);
+        
         try {
             // Tạo payload cho câu hỏi follow-up
             const options = {
@@ -349,47 +364,29 @@ class ChatService {
                 answer = 'Đã xử lý câu hỏi của bạn, nhưng không tìm thấy câu trả lời cụ thể.';
             }
             
-            // Create message model
-            const message = new MessageModel({
-                role: 'assistant',
-                content: answer
-            });
+            console.log('Follow-up question processed successfully');
             
-            // Publish message
-            EventBus.publish('chat:messageReceived', message);
-            
-            // Add to history
-            this.addToHistory('assistant', answer);
+            return {
+                content: answer,
+                analysisData: null
+            };
         } catch (error) {
-            Utils.debug('Error processing follow-up question:', error);
+            console.error('Error processing follow-up question:', error);
             
-            // Try fallback to general question
-            try {
-                Utils.debug('Falling back to general question processing');
-                await this.processGeneralQuestion(question);
-            } catch (fallbackError) {
-                Utils.debug('Fallback also failed:', fallbackError);
-                
-                // Create error message
-                const errorMessage = new MessageModel({
-                    role: 'assistant',
-                    content: 'Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.'
-                });
-                
-                // Publish message
-                EventBus.publish('chat:messageReceived', errorMessage);
-                
-                // Add to history
-                this.addToHistory('assistant', errorMessage.content);
-            }
+            // Fallback to general question
+            console.log('Falling back to general question processing');
+            return await this.processGeneralQuestion(question);
         }
     }
     
     /**
      * Process a general question about numerology
      * @param {string} question - General question to process
+     * @returns {Object} Processing result
      */
     static async processGeneralQuestion(question) {
+        console.log('Processing general question:', question);
+        
         try {
             // Ask the question
             const response = await AnalysisService.askQuestion({
@@ -409,52 +406,35 @@ class ChatService {
                 answer = 'Đã xử lý câu hỏi của bạn, nhưng không tìm thấy câu trả lời cụ thể.';
             }
             
-            // Create message model
-            const message = new MessageModel({
-                role: 'assistant',
-                content: answer
-            });
+            console.log('General question processed successfully');
             
-            // Publish message
-            EventBus.publish('chat:messageReceived', message);
-            
-            // Add to history
-            this.addToHistory('assistant', answer);
+            return {
+                content: answer,
+                analysisData: null
+            };
         } catch (error) {
-            Utils.debug('Error processing general question:', error);
-            
-            // Create error message
-            const errorMessage = new MessageModel({
-                role: 'assistant',
-                content: 'Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.'
-            });
-            
-            // Publish message
-            EventBus.publish('chat:messageReceived', errorMessage);
-            
-            // Add to history
-            this.addToHistory('assistant', errorMessage.content);
+            console.error('Error processing general question:', error);
+            throw error;
         }
     }
     
     /**
      * Process a request to compare phone numbers
      * @param {string} input - User input containing phone numbers to compare
+     * @returns {Object} Processing result
      */
     static async processCompareRequest(input) {
+        console.log('Processing compare request:', input);
+        
         try {
             // Extract phone numbers
             const phoneNumbers = this.extractPhoneNumbers(input);
             
             if (phoneNumbers.length < 2) {
-                const message = new MessageModel({
-                    role: 'assistant',
-                    content: 'Để so sánh số điện thoại, vui lòng cung cấp ít nhất 2 số điện thoại.'
-                });
-                
-                EventBus.publish('chat:messageReceived', message);
-                this.addToHistory('assistant', message.content);
-                return;
+                return {
+                    content: 'Để so sánh số điện thoại, vui lòng cung cấp ít nhất 2 số điện thoại.',
+                    analysisData: null
+                };
             }
             
             // Ask the comparison question
@@ -476,31 +456,15 @@ class ChatService {
                 answer = `Đã so sánh các số điện thoại: ${phoneNumbers.join(', ')}. Không tìm thấy thông tin chi tiết về so sánh.`;
             }
             
-            // Create message model
-            const message = new MessageModel({
-                role: 'assistant',
-                content: answer
-            });
+            console.log('Compare request processed successfully');
             
-            // Publish message
-            EventBus.publish('chat:messageReceived', message);
-            
-            // Add to history
-            this.addToHistory('assistant', answer);
+            return {
+                content: answer,
+                analysisData: null
+            };
         } catch (error) {
-            Utils.debug('Error processing compare request:', error);
-            
-            // Create error message
-            const errorMessage = new MessageModel({
-                role: 'assistant',
-                content: 'Xin lỗi, đã xảy ra lỗi khi so sánh các số điện thoại. Vui lòng thử lại sau.'
-            });
-            
-            // Publish message
-            EventBus.publish('chat:messageReceived', errorMessage);
-            
-            // Add to history
-            this.addToHistory('assistant', errorMessage.content);
+            console.error('Error processing compare request:', error);
+            throw error;
         }
     }
     
@@ -521,9 +485,14 @@ class ChatService {
         this.state.conversationHistory.push(message);
         
         // Keep history to a reasonable size
-        if (this.state.conversationHistory.length > 20) {
-            this.state.conversationHistory = this.state.conversationHistory.slice(-20);
+        if (this.state.conversationHistory.length > 50) {
+            this.state.conversationHistory = this.state.conversationHistory.slice(-50);
         }
+        
+        // Save to local storage
+        this.saveConversationHistory(this.state.conversationHistory);
+        
+        return message;
     }
     
     /**
@@ -536,6 +505,34 @@ class ChatService {
     }
     
     /**
+     * Load conversation history from localStorage
+     * @returns {Array} Conversation history or empty array
+     */
+    static loadConversationHistory() {
+        try {
+            const historyString = localStorage.getItem('phone_analysis_chat_history');
+            if (historyString) {
+                return JSON.parse(historyString);
+            }
+        } catch (error) {
+            console.error('Error loading conversation history from localStorage:', error);
+        }
+        return [];
+    }
+    
+    /**
+     * Save conversation history to localStorage
+     * @param {Array} history - Conversation history to save
+     */
+    static saveConversationHistory(history) {
+        try {
+            localStorage.setItem('phone_analysis_chat_history', JSON.stringify(history));
+        } catch (error) {
+            console.error('Error saving conversation history to localStorage:', error);
+        }
+    }
+    
+    /**
      * Get current analysis
      * @returns {object|null} Current analysis data or null
      */
@@ -544,10 +541,22 @@ class ChatService {
     }
     
     /**
+     * Get welcome message
+     * @returns {object} Welcome message object
+     */
+    static getWelcomeMessage() {
+        return {
+            role: 'assistant',
+            content: 'Xin chào! Tôi là trợ lý phân tích số điện thoại theo phương pháp Tứ Cát Tứ Hung. Bạn có thể nhập số điện thoại để tôi phân tích hoặc đặt câu hỏi về ý nghĩa các con số.',
+            timestamp: new Date().toISOString()
+        };
+    }
+    
+    /**
      * Clear conversation history
      */
     static clearHistory() {
-        this.state.conversationHistory = [];
+        this.state.conversationHistory = [this.getWelcomeMessage()];
         this.state.currentAnalysis = null;
         this.state.context = {
             lastInputType: null,
@@ -555,10 +564,10 @@ class ChatService {
             questionCount: 0
         };
         
-        Utils.debug('Conversation history and context cleared');
+        // Save to local storage
+        this.saveConversationHistory(this.state.conversationHistory);
         
-        // Publish event for views to update
-        EventBus.publish('chat:cleared');
+        console.log('Conversation history and context cleared');
     }
 }
 
